@@ -145,9 +145,9 @@
             background-color: #D7CCC8;
         }
         .category-btn.active {
-            background-color: #fdba74; /* Light Orange */
+            background-color: #fef08a; /* Light Yellow */
             color: #000000; /* Black */
-            border-color: #fb923c; /* Darker Orange */
+            border-color: #facc15; /* Darker Yellow */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         /* Image Gallery Styles */
@@ -213,23 +213,8 @@
             background-color: rgba(0, 0, 0, 0.7);
         }
 
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-            overflow: hidden;
-            margin-top: 4rem; /* Spacing after products */
-        }
-        .video-container iframe {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 105%;
-            height: 105%;
-            transform: translate(-50%, -50%);
-            border-radius: 0.75rem;
-        }
+        /* REMOVED .video-container and .video-container iframe styles */
+
         /* Toast Notification */
         .toast-notification {
             position: fixed;
@@ -323,9 +308,102 @@
             color: #ca8a04; /* amber-600 */
             background-color: #f9fafb; /* gray-50 */
         }
+        body[lang="hi"] .footer-btn {
+            font-weight: 700;
+        }
+        /* Sidebar Category Button Styles */
+        .sidebar-category-btn {
+            text-align: left;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            font-weight: 600;
+            color: #4B5563;
+            border-left: 4px solid transparent;
+        }
+        .sidebar-category-btn:hover {
+            background-color: #fff7ed; /* orange-50 */
+            color: #ca8a04;
+        }
+        .sidebar-category-btn.active {
+            background-color: #fff7ed;
+            color: #b45309; /* amber-700 */
+            border-left-color: #f59e0b; /* amber-500 */
+        }
+        /* Pagination Button Styles */
+        .pagination-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
+            color: #374151;
+            font-weight: 600;
+            margin: 0 0.25rem;
+        }
+        .pagination-btn:hover {
+            background-color: #fff7ed;
+            border-color: #fdba74;
+            color: #ca8a04;
+        }
+        .pagination-btn.active {
+            background-color: #fdba74;
+            color: #000000;
+            border-color: #fb923c;
+            transform: scale(1.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* Cart Blink Animation */
+        @keyframes blink-attention {
+            0%, 100% { transform: scale(1); color: #4b5563; } /* Default gray */
+            5% { transform: scale(1.2); color: #d97706; } /* Amber pop */
+            10% { transform: scale(1); color: #4b5563; }
+            15% { transform: scale(1.2); color: #d97706; } /* Second pop */
+            20% { transform: scale(1); color: #4b5563; }
+            /* 20% to 100% is idle time (4 seconds) */
+        }
+        
+        /* Apply blinking only to the icon SVG when this class is present */
+        .cart-blink .relative svg {
+            animation: blink-attention 5s infinite ease-in-out;
+            stroke-width: 2.5px; /* Make it slightly bolder when active */
+        }
+
+        /* Custom Scrollbar Styling - High Visibility */
+        /* Works on Chrome, Edge, and Safari */
+        ::-webkit-scrollbar {
+            width: 8px; /* Width for vertical scrollbar */
+            height: 8px; /* Height for horizontal scrollbar */
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(251, 191, 36, 0.1); /* Very light amber track */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #d97706; /* Amber-600 thumb */
+            border-radius: 4px;
+            border: 1px solid rgba(251, 191, 36, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #b45309; /* Amber-700 on hover */
+        }
+
+        /* Firefox Fallback */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: #d97706 rgba(251, 191, 36, 0.1);
+        }
     </style>
 </head>
-<body>
+<body lang="en"> <!-- Language attribute will be set by JS -->
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P2WCV5PQ"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -338,8 +416,9 @@
             <div class="flex-1">
                 <div id="search-component" class="relative w-max">
                     <input id="search-input" type="text" placeholder="Search..." class="h-11 pl-10 pr-4 rounded-full text-sm focus:outline-none transition-all duration-300 w-11 focus:w-64 border-2 border-transparent focus:border-amber-400">
-                    <span class="absolute left-0 top-0 mt-3 ml-3 text-gray-400 cursor-pointer" onclick="gtag('event', 'search_icon_click', { 'event_category': 'engagement', 'event_label': 'Search Icon' });">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <!-- UPDATED SEARCH ICON -->
+                    <span class="absolute left-0 top-0 h-11 flex items-center pl-3 text-amber-700 cursor-pointer" onclick="gtag('event', 'search_icon_click', { 'event_category': 'engagement', 'event_label': 'Search Icon' });">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </span>
                     <div id="search-results" class="absolute top-full left-0 mt-1 w-64 bg-white rounded-md shadow-lg max-h-60 overflow-y-auto z-30 hidden"></div>
                 </div>
@@ -350,15 +429,21 @@
                 <img src="https://i.ibb.co/n8r4SFNH/1002397847-removebg-preview-1.png" alt="Guru Sampoorna Logo" class="w-24 h-auto">
             </div>
 
-            <!-- Right: Empty spacer to balance header -->
-            <div class="flex-1 flex justify-end items-center space-x-4">
+            <!-- Right: Hamburger Menu -->
+            <div class="flex-1 flex justify-end items-center space-x-3">
+                <!-- Hamburger Menu Icon -->
+                <button id="open-category-menu-btn" class="text-amber-800 p-2 rounded-md hover:bg-amber-100 focus:outline-none" onclick="gtag('event', 'menu_click', { 'event_category': 'engagement', 'event_label': 'Hamburger Menu' });">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
             </div>
         </header>
 
         <!-- Main Content -->
         <main class="pt-6">
-            <!-- Category Buttons -->
-            <div id="category-buttons-container" class="flex justify-center items-center flex-wrap gap-4 mb-12">
+            <!-- Category Buttons (Hidden now, moved to sidebar) -->
+            <div id="category-buttons-container" class="hidden flex justify-center items-center flex-wrap gap-4 mb-12">
                  <!-- Category buttons will be dynamically inserted here -->
             </div>
 
@@ -367,21 +452,17 @@
                 <!-- Product sections and cards will be dynamically inserted here -->
                  <div class="loader"></div>
             </div>
-            
-            <!-- Autoplaying Video Section -->
-            <div class="video-container mx-auto max-w-4xl rounded-xl shadow-lg">
-                <iframe 
-                    src="https://www.youtube.com/embed/z1PCp3nX-yk?autoplay=1&mute=1&controls=0&loop=1&playlist=z1PCp3nX-yk" 
-                    frameborder="0" 
-                    allow="autoplay; encrypted-media" 
-                    allowfullscreen
-                    class="rounded-xl"
-                ></iframe>
+
+            <!-- Category Pagination (Numbered Circles) -->
+            <div id="category-pagination-container" class="flex justify-center items-center flex-wrap mt-12 mb-8 gap-2">
+                <!-- Numbered buttons will be dynamically inserted here -->
             </div>
 
         </main>
 
-        <footer class="text-center mt-16 py-6 border-t border-amber-200"><p class="text-gray-600">&copy; 2024 Guru Sampoorna. All Rights Reserved.</p></footer>
+        <footer class="text-center mt-16 py-6 border-t border-amber-200">
+            <p class="text-gray-600" data-key="footerCopy">&copy; 2024 Guru Sampoorna. All Rights Reserved.</p>
+        </footer>
     </div>
 
     <!-- App-like Footer Navigation -->
@@ -392,7 +473,7 @@
                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                  <span id="wishlist-count-badge" class="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center hidden">0</span>
             </div>
-            <span class="mt-1">Wishlist</span>
+            <span class="mt-1" data-key="wishlist">Wishlist</span>
         </button>
 
         <!-- Cart Icon -->
@@ -401,38 +482,50 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                 <span id="cart-count-badge" class="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center hidden">0</span>
             </div>
-             <span class="mt-1">Cart</span>
+             <span class="mt-1" data-key="cart">Cart</span>
              <span id="cart-total-header" class="text-xs font-semibold text-amber-800 hidden">₹0</span>
         </button>
 
         <!-- About Us Icon -->
         <a href="https://gurusampoorna.com/" target="_blank" rel="noopener noreferrer" class="footer-btn" onclick="gtag('event', 'about_us_click', { 'event_category': 'engagement', 'event_label': 'Footer About Us Icon' });">
              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-             <span class="mt-1">About Us</span>
+             <span class="mt-1" data-key="aboutUs">About Us</span>
         </a>
     </footer>
 
     <!-- Sidebars -->
+    
+    <!-- Category Menu Sidebar (NEW) -->
+    <div id="category-sidebar" class="sidebar closed fixed top-0 right-0 h-full w-full md:w-80 bg-white shadow-lg z-50 flex flex-col">
+        <div class="flex justify-between items-center p-4 border-b">
+            <h2 class="text-xl font-bold font-brand text-amber-800" data-key="categoriesTitle">Categories</h2>
+            <button id="close-category-sidebar-btn" class="text-2xl text-gray-600 hover:text-gray-900">&times;</button>
+        </div>
+        <div id="category-list-container" class="flex-grow p-4 overflow-y-auto flex flex-col gap-2">
+            <!-- Category buttons will be dynamically inserted here -->
+        </div>
+    </div>
+
     <div id="cart-sidebar" class="sidebar closed fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-lg z-50 flex flex-col">
         <div class="flex justify-between items-center p-4 border-b">
             <div class="flex items-center gap-3">
-                <h2 class="text-xl font-bold">Your Cart</h2>
-                <button id="how-to-order-btn" class="text-xs bg-gray-100 text-gray-700 font-semibold px-2 py-1 rounded-full hover:bg-gray-200 transition-colors">How to Order?</button>
+                <h2 class="text-xl font-bold" data-key="cartTitle">Your Cart</h2>
+                <button id="how-to-order-btn" class="text-xs bg-gray-100 text-gray-700 font-semibold px-2 py-1 rounded-full hover:bg-gray-200 transition-colors" data-key="howToOrder">How to Order?</button>
             </div>
             <button id="close-cart-btn" class="text-2xl">&times;</button>
         </div>
         <div id="cart-items-container" class="flex-grow p-4 overflow-y-auto"></div>
         <div class="p-4 border-t bg-gray-50">
             <div class="flex justify-between font-bold text-lg mb-4">
-                <span>Total:</span>
+                <span data-key="total">Total:</span>
                 <span id="cart-total">₹0</span>
             </div>
-            <button id="checkout-btn" class="w-full btn-primary py-3 rounded-lg font-semibold" onclick="gtag('event', 'checkout_click', { event_category: 'engagement', event_label: 'Checkout Button' });">Checkout</button>
+            <button id="checkout-btn" class="w-full btn-primary py-3 rounded-lg font-semibold" data-key="checkout" onclick="gtag('event', 'checkout_click', { event_category: 'engagement', event_label: 'Checkout Button' });">Checkout</button>
         </div>
     </div>
     <div id="wishlist-sidebar" class="sidebar closed fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-lg z-50 flex flex-col">
         <div class="flex justify-between items-center p-4 border-b">
-            <h2 class="text-xl font-bold">Your Wishlist</h2>
+            <h2 class="text-xl font-bold" data-key="wishlistTitle">Your Wishlist</h2>
             <button id="close-wishlist-btn" class="text-2xl">&times;</button>
         </div>
         <div id="wishlist-items-container" class="flex-grow p-4 overflow-y-auto"></div>
@@ -444,23 +537,23 @@
         <div class="modal-content bg-white rounded-lg shadow-xl p-6 w-full max-w-md text-center transform scale-95">
             <h3 id="modal-title" class="text-2xl font-brand font-bold text-gray-800 mb-4"></h3>
             <p id="modal-description" class="text-gray-600 mb-6"></p>
-            <button id="close-modal-btn" class="btn-primary px-6 py-2 rounded-lg font-semibold">Close</button>
+            <button id="close-modal-btn" class="btn-primary px-6 py-2 rounded-lg font-semibold" data-key="close">Close</button>
         </div>
     </div>
 
     <!-- "How to Order" Modal -->
     <div id="how-to-order-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 opacity-0">
         <div class="modal-content bg-white rounded-lg shadow-xl p-6 w-full max-w-md transform scale-95">
-            <h3 class="text-2xl font-brand font-bold text-gray-800 mb-4 text-center">How to Place an Order</h3>
+            <h3 class="text-2xl font-brand font-bold text-gray-800 mb-4 text-center" data-key="howToOrderTitle">How to Place an Order</h3>
             <ol class="list-decimal list-inside text-gray-600 space-y-3 mb-6 text-left">
-                <li>Browse our products and add your desired items to the cart.</li>
-                <li>Click on the cart icon in the top-right corner to review your order.</li>
-                <li>Press the "Checkout" button at the bottom of the cart.</li>
-                <li>You will be redirected to WhatsApp with a pre-filled message containing your order details.</li>
-                <li>Simply send the message to confirm and place your order!</li>
+                <li data-key="howToOrderStep1">Browse our products and add your desired items to the cart.</li>
+                <li data-key="howToOrderStep2">Click on the cart icon in the top-right corner to review your order.</li>
+                <li data-key="howToOrderStep3">Press the "Checkout" button at the bottom of the cart.</li>
+                <li data-key="howToOrderStep4">You will be redirected to WhatsApp with a pre-filled message containing your order details.</li>
+                <li data-key="howToOrderStep5">Simply send the message to confirm and place your order!</li>
             </ol>
             <div class="text-center">
-                <button id="close-how-to-order-modal-btn" class="btn-primary px-6 py-2 rounded-lg font-semibold">Got it!</button>
+                <button id="close-how-to-order-modal-btn" class="btn-primary px-6 py-2 rounded-lg font-semibold" data-key="gotIt">Got it!</button>
             </div>
         </div>
     </div>
@@ -470,20 +563,20 @@
         <div class="modal-content bg-white rounded-lg shadow-xl p-6 w-full max-w-md transform scale-95 relative">
             <!-- Step 1: New or Returning Customer -->
             <div id="checkout-step-1">
-                <h3 class="text-2xl font-brand font-bold text-gray-800 mb-4 text-center">Confirm Your Order</h3>
-                <p class="text-gray-600 mb-6 text-center">Are you a new customer?</p>
+                <h3 class="text-2xl font-brand font-bold text-gray-800 mb-4 text-center" data-key="confirmOrder">Confirm Your Order</h3>
+                <p class="text-gray-600 mb-6 text-center" data-key="areYouNew">Are you a new customer?</p>
                 <div class="flex justify-center gap-4">
-                    <button id="new-customer-btn" class="btn-primary flex-1 py-3 rounded-lg font-semibold">Yes, I'm new</button>
-                    <button id="returning-customer-btn" class="bg-gray-200 text-gray-800 flex-1 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors">No, I'm returning</button>
+                    <button id="new-customer-btn" class="btn-primary flex-1 py-3 rounded-lg font-semibold" data-key="yesNew">Yes, I'm new</button>
+                    <button id="returning-customer-btn" class="bg-gray-200 text-gray-800 flex-1 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors" data-key="noReturning">No, I'm returning</button>
                 </div>
             </div>
             <!-- Step 2: Address for New Customer -->
             <div id="checkout-step-2" class="hidden">
-                <h3 class="text-2xl font-brand font-bold text-gray-800 mb-4 text-center">Shipping Address</h3>
-                <p class="text-gray-600 mb-4 text-center text-sm">Please enter your full delivery address.</p>
+                <h3 class="text-2xl font-brand font-bold text-gray-800 mb-4 text-center" data-key="shippingAddress">Shipping Address</h3>
+                <p class="text-gray-600 mb-4 text-center text-sm" data-key="addressPrompt">Please enter your full delivery address.</p>
                 <textarea id="shipping-address-input" rows="4" class="w-full border-gray-300 rounded-md p-2 focus:ring-amber-500 focus:border-amber-500" placeholder="Full Name&#10;House No., Street Name&#10;City, State, Pincode&#10;Landmark (optional)"></textarea>
-                <p id="address-error" class="text-red-500 text-xs mt-1 hidden">Address cannot be empty.</p>
-                <button id="complete-checkout-btn" class="w-full btn-primary py-3 rounded-lg font-semibold mt-4">Complete Checkout</button>
+                <p id="address-error" class="text-red-500 text-xs mt-1 hidden" data-key="addressError">Address cannot be empty.</p>
+                <button id="complete-checkout-btn" class="w-full btn-primary py-3 rounded-lg font-semibold mt-4" data-key="completeCheckout">Complete Checkout</button>
             </div>
             <button id="close-checkout-modal-btn" class="absolute top-2 right-4 text-2xl text-gray-500 hover:text-gray-800">&times;</button>
         </div>
@@ -493,11 +586,97 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTOBYoHgJGxEOiVx9GvYcXTvzsRT-1kK-P3254UKV-N3BIHWAVT4-6kdVtCi4QJeo4wwsInNY-6Wp3D/pub?output=csv';
-        let cart = [], wishlist = [], allProducts = [];
-        const CART_KEY = 'guruSampoornaCart', WISHLIST_KEY = 'guruSampoornaWishlist';
+        let cart = [], wishlist = [], allProducts = [], allCategories = {};
+        const CART_KEY = 'guruSampoornaCart', WISHLIST_KEY = 'guruSampoornaWishlist', LANG_KEY = 'guruSampoornaLang';
         
+        // --- LANGUAGE STATE & TRANSLATIONS ---
+        let currentLang = localStorage.getItem(LANG_KEY) || 'en';
+        
+        const uiStrings = {
+            en: {
+                langSwitch: "हिंदी",
+                searchPlaceholder: "Search...",
+                noResults: "No results found",
+                wishlist: "Wishlist",
+                cart: "Cart",
+                aboutUs: "About Us",
+                cartTitle: "Your Cart",
+                categoriesTitle: "Categories",
+                howToOrder: "How to Order?",
+                total: "Total:",
+                checkout: "Checkout",
+                wishlistTitle: "Your Wishlist",
+                emptyCart: "Your cart is empty.",
+                emptyWishlist: "Your wishlist is empty.",
+                moveToCart: "Move to Cart",
+                knowMore: "Know More",
+                selectSize: "Select Size:",
+                addToCart: "Add to Cart",
+                added: "Added!",
+                close: "Close",
+                howToOrderTitle: "How to Place an Order",
+                howToOrderStep1: "Browse our products and add your desired items to the cart.",
+                howToOrderStep2: "Click on the cart icon in the top-right corner to review your order.",
+                howToOrderStep3: "Press the \"Checkout\" button at the bottom of the cart.",
+                howToOrderStep4: "You will be redirected to WhatsApp with a pre-filled message containing your order details.",
+                howToOrderStep5: "Simply send the message to confirm and place your order!",
+                gotIt: "Got it!",
+                confirmOrder: "Confirm Your Order",
+                areYouNew: "Are you a new customer?",
+                yesNew: "Yes, I'm new",
+                noReturning: "No, I'm returning",
+                shippingAddress: "Shipping Address",
+                addressPrompt: "Please enter your full delivery address.",
+                addressPlaceholder: "Full Name\nHouse No., Street Name\nCity, State, Pincode\nLandmark (optional)",
+                addressError: "Address cannot be empty.",
+                completeCheckout: "Complete Checkout",
+                footerCopy: "© 2024 Guru Sampoorna. All Rights Reserved."
+            },
+            hi: {
+                langSwitch: "English",
+                searchPlaceholder: "खोजें...",
+                noResults: "कोई परिणाम नहीं मिला",
+                wishlist: "विशलिस्ट",
+                cart: "कार्ट",
+                aboutUs: "हमारे बारे में",
+                cartTitle: "आपकी कार्ट",
+                categoriesTitle: "श्रेणियाँ",
+                howToOrder: "ऑर्डर कैसे करें?",
+                total: "कुल:",
+                checkout: "चेकआउट",
+                wishlistTitle: "आपकी विशलिस्ट",
+                emptyCart: "आपकी कार्ट खाली है।",
+                emptyWishlist: "आपकी विशलिस्ट खाली है।",
+                moveToCart: "कार्ट में डालें",
+                knowMore: "अधिक जानें",
+                selectSize: "आकार चुनें:",
+                addToCart: "कार्ट में जोड़ें",
+                added: "जोड़ दिया गया!",
+                close: "बंद करें",
+                howToOrderTitle: "ऑर्डर कैसे करें",
+                howToOrderStep1: "हमारे उत्पाद ब्राउज़ करें और अपनी इच्छित वस्तुओं को कार्ट में जोड़ें।",
+                howToOrderStep2: "अपने ऑर्डर की समीक्षा करने के लिए ऊपरी-दाएँ कोने में कार्ट आइकन पर क्लिक करें।",
+                howToOrderStep3: "कार्ट के नीचे \"चेकआउट\" बटन दबाएँ।",
+                howToOrderStep4: "आपको अपने ऑर्डर विवरण वाले एक पूर्व-भरे संदेश के साथ व्हाट्सएप पर पुनः निर्देशित किया जाएगा।",
+                howToOrderStep5: "अपना ऑर्डर पक्का करने और देने के लिए बस संदेश भेजें!",
+                gotIt: "समझ गया!",
+                confirmOrder: "अपने ऑर्डर की पुष्टि करें",
+                areYouNew: "क्या आप नए ग्राहक हैं?",
+                yesNew: "हाँ, मैं नया हूँ",
+                noReturning: "नहीं, मैं पुराना ग्राहक हूँ",
+                shippingAddress: "शिपिंग पता",
+                addressPrompt: "कृपया अपना पूरा डिलीवरी पता दर्ज करें।",
+                addressPlaceholder: "पूरा नाम\nमकान नंबर, गली का नाम\nशहर, राज्य, पिनकोड\nलैंडमार्क (वैकल्पिक)",
+                addressError: "पता खाली नहीं हो सकता।",
+                completeCheckout: "चेकआउट पूरा करें",
+                footerCopy: "© 2024 गुरु संपूर्ण। सर्वाधिकार सुरक्षित।"
+            }
+        };
+        // --- END LANGUAGE ---
+
         const cartSidebar = document.getElementById('cart-sidebar'),
               wishlistSidebar = document.getElementById('wishlist-sidebar'),
+              categorySidebar = document.getElementById('category-sidebar'),
               sidebarOverlay = document.getElementById('sidebar-overlay'),
               searchInput = document.getElementById('search-input'),
               searchResultsContainer = document.getElementById('search-results'),
@@ -506,8 +685,12 @@
               closeCartBtn = document.getElementById('close-cart-btn'),
               openWishlistBtn = document.getElementById('open-wishlist-btn'),
               closeWishlistBtn = document.getElementById('close-wishlist-btn'),
+              openCategoryMenuBtn = document.getElementById('open-category-menu-btn'),
+              closeCategorySidebarBtn = document.getElementById('close-category-sidebar-btn'),
               cartItemsContainer = document.getElementById('cart-items-container'),
               wishlistItemsContainer = document.getElementById('wishlist-items-container'),
+              categoryListContainer = document.getElementById('category-list-container'),
+              categoryPaginationContainer = document.getElementById('category-pagination-container'), // NEW
               cartTotalEl = document.getElementById('cart-total'),
               cartCountBadge = document.getElementById('cart-count-badge'),
               wishlistCountBadge = document.getElementById('wishlist-count-badge'),
@@ -537,6 +720,33 @@
             setupEventListeners();
             updateAllCartUI();
             updateAllWishlistUI();
+            renderAll(); // Render initial text based on stored language
+        }
+
+        // --- MASTER RENDER FUNCTION ---
+        function renderAll() {
+            document.body.setAttribute('lang', currentLang); // Set lang attribute for CSS styling
+            
+            // 1. Render Static UI Strings
+            const strings = uiStrings[currentLang];
+            searchInput.placeholder = strings.searchPlaceholder;
+            shippingAddressInput.placeholder = strings.addressPlaceholder;
+            
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if (strings[key]) el.textContent = strings[key];
+            });
+
+            // 2. Re-render Products & Categories if data exists
+            if (Object.keys(allCategories).length > 0) {
+                renderCategories(allCategories); // Re-render categories with translated names
+                renderPagination(allCategories); // NEW: Render bottom numbered pagination
+                renderProducts(allCategories);   // Re-render products (descriptions etc.)
+            }
+            
+            // 3. Re-render Cart & Wishlist to update labels
+            renderCart();
+            renderWishlist();
         }
 
         function parseCSV(text) {
@@ -589,18 +799,23 @@
                     productSectionsContainer.innerHTML = `<p class="text-center text-gray-600">No products found. Check your Google Sheet.</p>`;
                     return;
                 }
-                const categories = allProducts.reduce((acc, product) => {
+                // Process into categories (Global variable now)
+                allCategories = allProducts.reduce((acc, product) => {
                     const categoryId = product.categoryId || product.categoryName.replace(/\s+/g, '-').toLowerCase();
                     if (!acc[categoryId]) {
-                         acc[categoryId] = { name: product.categoryName, products: [] };
+                         // Store both English and Hindi names if available
+                         acc[categoryId] = { 
+                             name: product.categoryName, 
+                             name_hi: product.categoryName_hi || product.categoryName, // Fallback to English
+                             products: [] 
+                         };
                     }
                     product.categoryId = categoryId;
                     acc[categoryId].products.push(product);
                     return acc;
                 }, {});
 
-                renderCategories(categories);
-                renderProducts(categories);
+                // Initial Render happens in renderAll() after data is ready
             } catch (error) {
                 console.error("Error fetching products:", error);
                 productSectionsContainer.innerHTML = `<p class="text-center text-red-600">Could not load products.</p>`;
@@ -608,27 +823,59 @@
         }
 
         function renderCategories(categories) {
-            categoryButtonsContainer.innerHTML = Object.keys(categories).map((catId, i) => `<button data-target="#${catId}" class="category-btn ${i === 0 ? 'active' : ''}" onclick="gtag('event', 'categories_click', { 'event_category': 'engagement', 'event_label': '${categories[catId].name}' });">${categories[catId].name}</button>`).join('');
+            // Replaced horizontal buttons with Sidebar List
+            categoryListContainer.innerHTML = Object.keys(categories).map((catId, i) => {
+                const catData = categories[catId];
+                const displayName = currentLang === 'hi' ? catData.name_hi : catData.name;
+                return `<button data-target="#${catId}" class="sidebar-category-btn w-full ${i === 0 ? 'active' : ''}">${displayName}</button>`;
+            }).join('');
+        }
+
+        // NEW FUNCTION: Render numbered pagination at the bottom
+        function renderPagination(categories) {
+            const keys = Object.keys(categories);
+            if (keys.length <= 1) {
+                categoryPaginationContainer.innerHTML = ''; // Hide if only 1 or 0 categories
+                return;
+            }
+            categoryPaginationContainer.innerHTML = keys.map((catId, i) => {
+                return `<button data-target="#${catId}" class="pagination-btn ${i === 0 ? 'active' : ''}" aria-label="Page ${i + 1}">${i + 1}</button>`;
+            }).join('');
         }
 
         function renderProducts(categories) {
-            productSectionsContainer.innerHTML = Object.keys(categories).map((catId, i) => `<section id="${catId}" class="product-section ${i > 0 ? 'hidden' : ''}"><div class="flex justify-center"><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl">${categories[catId].products.map(createProductCardHTML).join('')}</div></div></section>`).join('');
+            const strings = uiStrings[currentLang];
+            
+            productSectionsContainer.innerHTML = Object.keys(categories).map((catId, i) => `
+                <section id="${catId}" class="product-section ${i > 0 ? 'hidden' : ''}">
+                    <div class="flex justify-center">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl">
+                            ${categories[catId].products.map(p => createProductCardHTML(p, strings)).join('')}
+                        </div>
+                    </div>
+                </section>
+            `).join('');
             document.querySelectorAll('.product-card').forEach(updateCardWishlistStatus);
         }
 
-        function createProductCardHTML(product) {
+        function createProductCardHTML(product, strings) {
             const defaultVariant = product.variants[0];
             const mainGalleryImages = [product.imageUrl, ...product.galleryImages].filter(Boolean);
+            
+            // Language-specific data
+            const displayName = currentLang === 'hi' ? (product.name_hi || product.name) : product.name;
+            const detailedDesc = currentLang === 'hi' ? (product.detailedDescription_hi || product.detailedDescription) : product.detailedDescription;
+
             return `
-            <div class="product-card rounded-xl overflow-hidden flex flex-col" data-product-id="${product.id}" data-product-name="${product.name}" data-detailed-description="${product.detailedDescription || ''}" data-main-image="${product.imageUrl}">
+            <div class="product-card rounded-xl overflow-hidden flex flex-col" data-product-id="${product.id}" data-product-name="${displayName}" data-detailed-description="${detailedDesc || ''}" data-main-image="${product.imageUrl}">
                 <div class="product-image-container">
                     ${buildGalleryHTML(mainGalleryImages)}
                 </div>
                 <div class="p-6 flex flex-col flex-grow text-center">
-                    <h3 class="text-xl font-brand font-bold text-gray-800">${product.name}</h3>
-                    <button class="know-more-btn text-sm text-blue-600 hover:underline mt-2">Know More</button>
+                    <h3 class="text-xl font-brand font-bold text-gray-800">${displayName}</h3>
+                    <button class="know-more-btn text-sm text-blue-600 hover:underline mt-2">${strings.knowMore}</button>
                     <div class="mt-4">
-                        <p class="text-sm font-semibold text-gray-600 mb-2">Select Size:</p>
+                        <p class="text-sm font-semibold text-gray-600 mb-2">${strings.selectSize}</p>
                         <div class="flex flex-wrap gap-2 justify-center">
                             ${product.variants.map((v, i) => `<label class="variant-label cursor-pointer"><input type="radio" name="variant-${product.id}" class="sr-only" value="${v.price}" data-variant="${v.size}" ${i===0?'checked':''}><span class="block text-center border-2 border-gray-200 rounded-lg px-4 py-2 text-sm">${v.size}</span></label>`).join('')}
                         </div>
@@ -639,11 +886,11 @@
                             <input type="number" class="quantity-input w-12 text-center border-none focus:ring-0" value="1" min="1">
                             <button class="quantity-btn plus p-2 text-lg leading-none" data-action="increase">+</button>
                         </div>
-                        <button class="wishlist-btn p-2 rounded-full hover:bg-red-100" onclick="gtag('event', 'wishlist_click', { 'event_category': 'engagement', 'event_label': 'Product Wishlist Icon', 'product_name': '${product.name}' });"><svg class="w-6 h-6 heart-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"></path></svg></button>
+                        <button class="wishlist-btn p-2 rounded-full hover:bg-red-100"><svg class="w-6 h-6 heart-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"></path></svg></button>
                     </div>
                     <div class="mt-auto pt-4 relative">
                         <p class="text-3xl font-bold text-amber-800 price">₹${defaultVariant.price}</p>
-                        <button class="add-to-cart-btn btn-primary w-full font-semibold py-2 px-5 rounded-lg shadow-sm mt-2" onclick="gtag('event', 'add_to_cart_click', { 'event_category': 'ecommerce', 'event_label': 'Add to Cart Button', 'product_name': '${product.name}' });">Add to Cart</button>
+                        <button class="add-to-cart-btn btn-primary w-full font-semibold py-2 px-5 rounded-lg shadow-sm mt-2">${strings.addToCart}</button>
                     </div>
                 </div>
             </div>`;
@@ -669,7 +916,10 @@
                 if (!target.closest('#search-component')) {
                      searchResultsContainer.classList.add('hidden');
                 }
-                if (target.closest('.category-btn')) handleCategoryClick(target.closest('.category-btn'));
+                // Check for sidebar category button OR pagination button
+                if (target.closest('.sidebar-category-btn')) handleCategoryClick(target.closest('.sidebar-category-btn'));
+                if (target.closest('.pagination-btn')) handleCategoryClick(target.closest('.pagination-btn'));
+                
                 if (target.closest('.quantity-btn')) handleQuantityClick(target.closest('.quantity-btn'));
                 if (target.closest('.add-to-cart-btn')) handleAddToCart(target.closest('.add-to-cart-btn'));
                 if (target.closest('.wishlist-btn')) handleToggleWishlist(target.closest('.wishlist-btn'));
@@ -702,6 +952,9 @@
             closeCartBtn.addEventListener('click', () => toggleSidebar(cartSidebar));
             openWishlistBtn.addEventListener('click', () => toggleSidebar(wishlistSidebar));
             closeWishlistBtn.addEventListener('click', () => toggleSidebar(wishlistSidebar));
+            openCategoryMenuBtn.addEventListener('click', () => toggleSidebar(categorySidebar));
+            closeCategorySidebarBtn.addEventListener('click', () => toggleSidebar(categorySidebar));
+            
             sidebarOverlay.addEventListener('click', () => document.querySelectorAll('.sidebar.open').forEach(toggleSidebar));
             
             cartItemsContainer.addEventListener('click', e => {
@@ -742,14 +995,33 @@
         }
 
         function handleCategoryClick(btn) {
-            document.querySelectorAll('.category-btn.active').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
             const targetId = btn.dataset.target;
+
+            // Update Active State for BOTH Sidebar buttons AND Pagination buttons
+            // We look for any button (sidebar or pagination) that targets the same ID
+            const allNavButtons = document.querySelectorAll(`[data-target]`);
+            allNavButtons.forEach(b => {
+                if (b.dataset.target === targetId) {
+                    b.classList.add('active');
+                } else {
+                    b.classList.remove('active');
+                }
+            });
+
+            // Show/Hide Product Sections
             document.querySelectorAll('.product-section').forEach(s => {
                 s.classList.toggle('hidden', `#${s.id}` !== targetId);
             });
+            
             searchInput.value = '';
             handleSearchFilter();
+
+            // Close sidebar on mobile/desktop after selection if it was open
+            const categorySidebar = document.getElementById('category-sidebar');
+            if (categorySidebar.classList.contains('open')) {
+                categorySidebar.classList.replace('open', 'closed');
+                document.getElementById('sidebar-overlay').classList.add('hidden');
+            }
 
             const targetSection = document.querySelector(targetId);
             if (targetSection) {
@@ -762,7 +1034,7 @@
                         top: offsetPosition,
                         behavior: "smooth"
                     });
-                }, 100);
+                }, 300); // Slight delay for sidebar closing transition
             }
         }
         
@@ -772,8 +1044,18 @@
                 searchResultsContainer.classList.add('hidden');
                 return;
             }
-            const results = allProducts.filter(p => p.name.toLowerCase().includes(term));
-            searchResultsContainer.innerHTML = results.length ? results.map(p => `<div class="search-result-item block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" data-product-id="${p.id}">${p.name}</div>`).join('') : '<span class="block px-4 py-2 text-sm text-gray-500">No results found</span>';
+            // Search logic handles both languages roughly by checking if display name contains string
+            const results = allProducts.filter(p => {
+                const nameEn = (p.name || '').toLowerCase();
+                const nameHi = (p.name_hi || '').toLowerCase();
+                return nameEn.includes(term) || nameHi.includes(term);
+            });
+            
+            const strings = uiStrings[currentLang];
+            searchResultsContainer.innerHTML = results.length ? results.map(p => {
+                const dName = currentLang === 'hi' ? (p.name_hi || p.name) : p.name;
+                return `<div class="search-result-item block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer" data-product-id="${p.id}">${dName}</div>`;
+            }).join('') : `<span class="block px-4 py-2 text-sm text-gray-500">${strings.noResults}</span>`;
             searchResultsContainer.classList.remove('hidden');
 
              searchResultsContainer.querySelectorAll('.search-result-item').forEach(item => {
@@ -783,7 +1065,8 @@
                     const product = allProducts.find(p => p.id === productId);
                     if (!product) return;
 
-                    const categoryBtn = document.querySelector(`.category-btn[data-target="#${product.categoryId}"]`);
+                    // Updated to find ANY navigation button for this category (Sidebar or Pagination)
+                    const categoryBtn = document.querySelector(`[data-target="#${product.categoryId}"]`);
                     if(categoryBtn && !categoryBtn.classList.contains('active')) {
                         handleCategoryClick(categoryBtn);
                     }
@@ -798,7 +1081,7 @@
                                  productCard.style.boxShadow = '';
                              }, 2000);
                         }
-                    }, 100);
+                    }, 400); // delay for sidebar close + scroll
                     
                     searchResultsContainer.classList.add('hidden');
                      searchInput.value = '';
@@ -823,9 +1106,21 @@
 
         function handleCheckoutStart() {
             if (cart.length === 0) {
-                showToast("Your cart is empty!", 'error');
+                showToast(uiStrings[currentLang].emptyCart, 'error');
                 return;
             }
+
+            // --- NEW TRACKING: Google Ads Begin Checkout ---
+            // Event snippet for Begin checkout conversion page
+            if (typeof gtag === 'function') {
+                gtag('event', 'conversion', {
+                    'send_to': 'AW-17042728429/NpMMCP_BpcQbEO3Lzb4_',
+                    'value': 1.0,
+                    'currency': 'INR'
+                });
+            }
+            // -----------------------------------------------
+
             openCheckoutModal();
         }
 
@@ -914,9 +1209,10 @@
             }
             const item = { id: card.dataset.productId, name: card.dataset.productName, image: image, variant: v.dataset.variant, price: parseFloat(v.value), quantity: parseInt(card.querySelector('.quantity-input').value) };
             addToCart(item);
+            const strings = uiStrings[currentLang];
             btn.classList.add('added');
-            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block -mt-1 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Added!`;
-            setTimeout(() => { btn.classList.remove('added'); btn.textContent = 'Add to Cart'; }, 1500);
+            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block -mt-1 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>${strings.added}`;
+            setTimeout(() => { btn.classList.remove('added'); btn.textContent = strings.addToCart; }, 1500);
             const pop = document.createElement('div');
             pop.className = 'price-popup';
             pop.textContent = `+ ₹${(item.price * item.quantity).toFixed(2)}`;
@@ -1057,8 +1353,9 @@
         }
         function renderCart() {
             const total = cart.reduce((acc, i) => acc + i.price * i.quantity, 0);
+            const strings = uiStrings[currentLang];
             cartTotalEl.textContent = `₹${total.toFixed(2)}`;
-            cartItemsContainer.innerHTML = cart.length === 0 ? `<p class="text-gray-500 text-center mt-8">Your cart is empty.</p>` : cart.map(item => `
+            cartItemsContainer.innerHTML = cart.length === 0 ? `<p class="text-gray-500 text-center mt-8">${strings.emptyCart}</p>` : cart.map(item => `
                 <div class="flex items-center gap-4 py-3 border-b">
                     <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-contain rounded-md p-1 bg-gray-50">
                     <div class="flex-grow">
@@ -1075,7 +1372,8 @@
                 </div>`).join('');
         }
         function renderWishlist() {
-            wishlistItemsContainer.innerHTML = wishlist.length === 0 ? `<p class="text-gray-500 text-center mt-8">Your wishlist is empty.</p>` : wishlist.map(item => `
+            const strings = uiStrings[currentLang];
+            wishlistItemsContainer.innerHTML = wishlist.length === 0 ? `<p class="text-gray-500 text-center mt-8">${strings.emptyWishlist}</p>` : wishlist.map(item => `
                 <div class="flex items-center gap-4 py-2 border-b">
                     <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-contain rounded-md p-1 bg-gray-50">
                     <div class="flex-grow">
@@ -1083,7 +1381,7 @@
                         <p class="text-xs text-gray-500">${item.variant}</p>
                         <p class="font-semibold text-amber-800 text-sm mt-1">₹${item.price.toFixed(2)}</p>
                     </div>
-                    <button class="move-to-cart-btn btn-primary text-xs px-3 py-2 rounded-md" data-item='${JSON.stringify(item)}'>Move to Cart</button>
+                    <button class="move-to-cart-btn btn-primary text-xs px-3 py-2 rounded-md" data-item='${JSON.stringify(item)}'>${strings.moveToCart}</button>
                     <button class="remove-from-wishlist-btn text-gray-400 hover:text-red-500 p-2" data-id="${item.id}" data-variant="${item.variant}">
                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
@@ -1094,10 +1392,19 @@
             const count = cart.reduce((acc, i) => acc + i.quantity, 0);
             const total = cart.reduce((acc, i) => acc + i.price * i.quantity, 0);
             const header = document.getElementById('cart-total-header');
+            const cartBtn = document.getElementById('open-cart-btn');
+            
             cartCountBadge.textContent = count;
             cartCountBadge.classList.toggle('hidden', count === 0);
             header.textContent = `₹${total.toFixed(2)}`;
             header.classList.toggle('hidden', total === 0);
+            
+            // Add or remove blinking animation based on cart content
+            if (count > 0) {
+                cartBtn.classList.add('cart-blink');
+            } else {
+                cartBtn.classList.remove('cart-blink');
+            }
         }
         function updateWishlistCount() {
             const count = wishlist.length;
@@ -1127,4 +1434,3 @@
     </script>
 </body>
 </html>
-
