@@ -496,6 +496,19 @@
         #know-more-modal {
             z-index: 60; 
         }
+
+        /* Marquee Animation for Announcement Bar */
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 20s linear infinite;
+            /* Ensure it doesn't overlap header elements */
+            will-change: transform;
+        }
     </style>
 </head>
 <body lang="en"> <!-- Language attribute will be set by JS -->
@@ -515,7 +528,7 @@
                     <div id="search-component" class="relative w-max">
                         <input id="search-input" type="text" placeholder="Search..." class="h-11 pl-12 pr-4 rounded-full text-sm focus:outline-none transition-all duration-300 w-11 focus:w-64 border-2 border-transparent focus:border-amber-400">
                         <!-- UPDATED SEARCH ICON: Added id, fixed width/centering for better click target -->
-                        <span id="search-icon-btn" class="absolute left-0 top-0 h-11 w-11 flex items-center justify-center text-amber-700 cursor-pointer z-10" onclick="gtag('event', 'search_icon_click', { 'event_category': 'engagement', 'event_label': 'Search Icon' });">
+                        <span id="search-icon-btn" class="absolute left-0 top-0 h-11 w-11 flex items-center justify-center text-black cursor-pointer z-10" onclick="gtag('event', 'search_icon_click', { 'event_category': 'engagement', 'event_label': 'Search Icon' });">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </span>
                         <div id="search-results" class="absolute top-full left-0 mt-1 w-64 bg-white rounded-md shadow-lg max-h-60 overflow-y-auto z-30 hidden"></div>
@@ -539,23 +552,38 @@
             </div>
 
             <!-- NEW: Scrollable Category Strip with Fade Hint (Inside Sticky Header) -->
-            <div class="relative group mt-1">
+            <!-- UPDATED: Changed bg-red-50 to bg-white -->
+            <div class="relative group mt-1 bg-white">
                 <!-- The Strip -->
                 <!-- Reduced padding-top (py-1 -> py-0) since we added margin to the separator above -->
                 <div id="top-category-strip" class="flex overflow-x-auto gap-3 px-1 py-1 no-scrollbar snap-x scroll-smooth">
                      <!-- Category buttons will be dynamically inserted here -->
                 </div>
                 <!-- Right Fade Overlay (Visual Hint for Scrolling) -->
-                <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#fffaf0] to-transparent pointer-events-none flex items-center justify-end">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-amber-400 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <!-- UPDATED: Changed gradient to from-white to match background -->
+                <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none flex items-center justify-end">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-red-600 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
+                </div>
+            </div>
+
+            <!-- Announcement Bar (NEW: Slimmer & Moving) -->
+            <!-- UPDATED: Swapped to Green theme -->
+            <div class="bg-green-50 py-0.5 overflow-hidden border-t border-green-100">
+                <div class="animate-marquee">
+                    <span class="text-green-800 text-xs font-bold inline-flex items-center gap-2">
+                        Dear customers you can bring your own container for refill of oil. <span class="text-sm">😊</span>
+                    </span>
                 </div>
             </div>
         </header>
 
         <!-- Main Content -->
         <main class="pt-6"> <!-- Restored padding top -->
+            
+            <!-- REMOVED: Home View (Best Selling Categories) div -->
+
             <!-- Categories Container -->
             <div id="product-sections-container">
                 <!-- Product sections and cards will be dynamically inserted here -->
@@ -904,6 +932,7 @@
               cartCountBadge = document.getElementById('cart-count-badge'), // Top header badge
               wishlistCountBadge = document.getElementById('wishlist-count-badge'),
               productSectionsContainer = document.getElementById('product-sections-container'),
+              // Removed homeView variable
               topCategoryStrip = document.getElementById('top-category-strip'), // UPDATED Variable Name
               knowMoreModal = document.getElementById('know-more-modal'),
               modalTitle = document.getElementById('modal-title'),
@@ -967,12 +996,16 @@
                 renderCategories(allCategories); // Re-render categories with translated names
                 renderPagination(allCategories); // NEW: Render bottom numbered pagination
                 renderProducts(allCategories);   // Re-render products (descriptions etc.)
+                // Removed renderHome call
             }
             
             // 3. Re-render Cart & Wishlist to update labels
             renderCart();
             renderWishlist();
         }
+
+        // Removed renderHome function
+        // Removed showHomePage function
 
         function parseCSV(text) {
             const rows = text.split(/\r?\n/);
@@ -1144,14 +1177,11 @@
                     const displayName = currentLang === 'hi' ? catData.name_hi : catData.name;
                     const iconSvg = getCategoryIcon(catData.name); 
                     
-                    // UPDATED: Circular "Story" Style with Light Red Border
-                    // Changes:
-                    // 1. Added 'circle-icon-container' class for specific targeting
-                    // 2. Changed 'border-orange-100' to 'border-red-300' (Light Red Ring)
+                    // Circular Style
                     return `
                     <button data-target="#${catId}" class="sidebar-category-btn flex flex-col items-center justify-start gap-1 min-w-[72px] p-1 transition-all group snap-start opacity-90 hover:opacity-100 ${i === 0 ? 'active' : ''}">
                         <!-- Circular Icon Container -->
-                        <div class="circle-icon-container w-16 h-16 rounded-full bg-white border-2 border-red-300 flex items-center justify-center text-amber-700 shadow-sm group-hover:scale-105 group-hover:border-red-400 transition-all">
+                        <div class="circle-icon-container w-16 h-16 rounded-full bg-white border-2 border-red-600 flex items-center justify-center text-black shadow-sm group-hover:scale-105 group-hover:border-red-800 transition-all">
                             <div class="w-8 h-8 flex items-center justify-center">
                                 ${iconSvg}
                             </div>
@@ -1179,16 +1209,15 @@
             const strings = uiStrings[currentLang];
             
             productSectionsContainer.innerHTML = Object.keys(categories).map((catId, i) => `
+                <!-- CHANGED: Reverted to show first section by default (i > 0 hidden) -->
                 <section id="${catId}" class="product-section ${i > 0 ? 'hidden' : ''}">
                     <div class="flex justify-center">
-                        <!-- CHANGED: grid-cols-2 for mobile to show small cards, standard grid for desktop -->
                         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8 max-w-7xl w-full">
                             ${categories[catId].products.map(p => createCompactProductCardHTML(p, strings)).join('')}
                         </div>
                     </div>
                 </section>
             `).join('');
-            // Note: Wishlist status update on compact cards is simpler, we handle it in render
         }
 
         // --- NEW: Create Compact Card (Mini Card) ---
@@ -1309,12 +1338,10 @@
                 });
             }
             
-            // Search Icon Click - Focuses Input Manually
-            if (searchIconBtn) {
-                searchIconBtn.addEventListener('click', (e) => {
-                    // Prevent bubbling if necessary, but mainly focus input
-                    e.preventDefault();
-                    searchInput.focus();
+            // Logo Click -> Reload Page (Default View)
+            if (headerLogo) {
+                headerLogo.addEventListener('click', () => {
+                    window.location.reload();
                 });
             }
 
@@ -1531,7 +1558,10 @@
         }
 
         function handleCategoryClick(btn) {
+            if(!btn) return; // Guard clause
             const targetId = btn.dataset.target;
+
+            // Removed homeView logic
 
             // Update Active State for BOTH Sidebar buttons AND Pagination buttons
             // We look for any button (sidebar or pagination) that targets the same ID
@@ -1561,16 +1591,22 @@
 
             const targetSection = document.querySelector(targetId);
             if (targetSection) {
-                setTimeout(() => {
-                    const headerHeight = document.querySelector('header').offsetHeight;
-                    const elementPosition = targetSection.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerHeight - 110; // Extra offset for the category strip
+                // Determine offset based on whether we are mobile or desktop
+                // On mobile, the sticky header is smaller, on desktop larger.
+                const header = document.querySelector('header');
+                const headerHeight = header ? header.offsetHeight : 120;
+                const extraOffset = 20; 
+                
+                // Calculate position relative to document
+                const bodyRect = document.body.getBoundingClientRect().top;
+                const elementRect = targetSection.getBoundingClientRect().top;
+                const elementPosition = elementRect - bodyRect;
+                const offsetPosition = elementPosition - headerHeight - extraOffset;
     
-                    window.scrollTo({
-                        top: offsetPosition,
-                        behavior: "smooth"
-                    });
-                }, 300); // Slight delay for sidebar closing transition
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
             }
         }
         
