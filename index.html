@@ -582,7 +582,7 @@
         <!-- Main Content -->
         <main class="pt-6"> <!-- Restored padding top -->
             
-            <!-- REMOVED: Home View (Best Selling Categories) div -->
+            <!-- REMOVED: Home View Container -->
 
             <!-- Categories Container -->
             <div id="product-sections-container">
@@ -591,6 +591,7 @@
             </div>
 
             <!-- Category Pagination (Numbered Circles) -->
+            <!-- REMOVED 'hidden' class so pagination shows by default -->
             <div id="category-pagination-container" class="flex justify-center items-center flex-wrap mt-12 mb-8 gap-2">
                 <!-- Numbered buttons will be dynamically inserted here -->
             </div>
@@ -656,7 +657,10 @@
     <footer class="app-footer flex justify-around items-start">
         <!-- 1. About Us Icon -->
         <a href="https://gurusampoorna.com/" target="_blank" rel="noopener noreferrer" class="footer-btn" onclick="gtag('event', 'about_us_click', { 'event_category': 'engagement', 'event_label': 'Footer About Us Icon' });">
-             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+             <!-- Changed SVG to a User/Human Icon -->
+             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+             </svg>
              <span class="mt-1" data-key="aboutUs">About Us</span>
         </a>
 
@@ -802,8 +806,19 @@
                 <p class="text-gray-600 mb-4 text-center text-sm" data-key="addressPrompt">Please enter your full delivery address.</p>
                 <textarea id="shipping-address-input" rows="4" class="w-full border-gray-300 rounded-md p-2 focus:ring-amber-500 focus:border-amber-500" placeholder="Full Name&#10;House No., Street Name&#10;City, State, Pincode&#10;Landmark (optional)"></textarea>
                 <p id="address-error" class="text-red-500 text-xs mt-1 hidden" data-key="addressError">Address cannot be empty.</p>
-                <button id="complete-checkout-btn" class="w-full btn-primary py-3 rounded-lg font-semibold mt-4" data-key="completeCheckout">Complete Checkout</button>
+                <!-- RENAMED ID from complete-checkout-btn to proceed-to-payment-btn for clarity, logic handles this -->
+                <button id="proceed-to-payment-btn" class="w-full btn-primary py-3 rounded-lg font-semibold mt-4" data-key="proceedToPayment">Proceed to Payment</button>
             </div>
+            
+            <!-- Step 3: Payment Method Selection (NEW) -->
+            <div id="checkout-step-3" class="hidden">
+                <h3 class="text-2xl font-brand font-bold text-gray-800 mb-6 text-center" data-key="selectPayment">Select Payment Method</h3>
+                <div class="flex flex-col gap-3">
+                    <button class="btn-primary w-full py-3 rounded-lg font-semibold payment-btn shadow-sm hover:shadow-md transition-all" data-mode="Cash on Delivery (COD)" data-key="codBtn">Cash on Delivery (COD)</button>
+                    <button class="bg-gray-200 text-gray-800 w-full py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors payment-btn shadow-sm" data-mode="Prepaid" data-key="prepaidBtn">Prepaid (UPI/Netbanking)</button>
+                </div>
+            </div>
+
             <button id="close-checkout-modal-btn" class="absolute top-2 right-4 text-2xl text-gray-500 hover:text-gray-800">&times;</button>
         </div>
     </div>
@@ -857,6 +872,10 @@
                 addressPlaceholder: "Full Name\nHouse No., Street Name\nCity, State, Pincode\nLandmark (optional)",
                 addressError: "Address cannot be empty.",
                 completeCheckout: "Complete Checkout",
+                proceedToPayment: "Proceed to Payment",
+                selectPayment: "Select Payment Method",
+                codBtn: "Cash on Delivery (COD)",
+                prepaidBtn: "Prepaid (UPI/Netbanking)",
                 footerCopy: "© 2024 Guru Sampoorna. All Rights Reserved.",
                 support: "Support",
                 contactSupport: "Contact Support",
@@ -901,6 +920,10 @@
                 addressPlaceholder: "पूरा नाम\nमकान नंबर, गली का नाम\nशहर, राज्य, पिनकोड\nलैंडमार्क (वैकल्पिक)",
                 addressError: "पता खाली नहीं हो सकता।",
                 completeCheckout: "चेकआउट पूरा करें",
+                proceedToPayment: "भुगतान के लिए आगे बढ़ें",
+                selectPayment: "भुगतान का तरीका चुनें",
+                codBtn: "कैश ऑन डिलीवरी (COD)",
+                prepaidBtn: "प्रीपेड (UPI/नेटबैंकिंग)",
                 footerCopy: "© 2024 गुरु संपूर्ण। सर्वाधिकार सुरक्षित।",
                 support: "सहयोग",
                 contactSupport: "संपर्क करें",
@@ -948,12 +971,13 @@
               checkoutModal = document.getElementById('checkout-modal'),
               newCustomerBtn = document.getElementById('new-customer-btn'),
               returningCustomerBtn = document.getElementById('returning-customer-btn'),
-              completeCheckoutBtn = document.getElementById('complete-checkout-btn'),
+              proceedToPaymentBtn = document.getElementById('proceed-to-payment-btn'), // Renamed from completeCheckoutBtn
               closeCheckoutModalBtn = document.getElementById('close-checkout-modal-btn'),
               shippingAddressInput = document.getElementById('shipping-address-input'),
               addressError = document.getElementById('address-error'),
               checkoutStep1 = document.getElementById('checkout-step-1'),
               checkoutStep2 = document.getElementById('checkout-step-2'),
+              checkoutStep3 = document.getElementById('checkout-step-3'), // NEW
               langSwitchBtn = document.getElementById('lang-switch-btn'),
               floatingCartPill = document.getElementById('floating-cart-pill'), 
               floatingCartCount = document.getElementById('floating-cart-count'), 
@@ -1004,8 +1028,7 @@
             renderWishlist();
         }
 
-        // Removed renderHome function
-        // Removed showHomePage function
+        // Removed renderHome function and showHomePage function
 
         function parseCSV(text) {
             const rows = text.split(/\r?\n/);
@@ -1060,14 +1083,24 @@
                 // Process into categories (Global variable now)
                 allCategories = allProducts.reduce((acc, product) => {
                     const categoryId = product.categoryId || product.categoryName.replace(/\s+/g, '-').toLowerCase();
+                    
+                    // Initialize category if not exists
                     if (!acc[categoryId]) {
                           // Store both English and Hindi names if available
                           acc[categoryId] = { 
                              name: product.categoryName, 
                              name_hi: product.categoryName_hi || product.categoryName, // Fallback to English
+                             image: product.categoryImage || null, // Initialize with current row's image
                              products: [] 
                           };
                     }
+
+                    // --- FIX: Check if current product has an image and update category if it was previously empty ---
+                    // This ensures we find the image even if it's not in the first row of the category
+                    if ((!acc[categoryId].image || acc[categoryId].image.trim() === '') && product.categoryImage && product.categoryImage.trim() !== '') {
+                        acc[categoryId].image = product.categoryImage;
+                    }
+
                     product.categoryId = categoryId;
                     acc[categoryId].products.push(product);
                     return acc;
@@ -1159,12 +1192,20 @@
             categoryListContainer.innerHTML = Object.keys(categories).map((catId, i) => {
                 const catData = categories[catId];
                 const displayName = currentLang === 'hi' ? catData.name_hi : catData.name;
-                const iconSvg = getCategoryIcon(catData.name); 
+                
+                // Logic: Use Image if available, else use Icon
+                let visualElement;
+                if (catData.image && catData.image.trim() !== '') {
+                    visualElement = `<img src="${catData.image}" alt="${displayName}" class="w-full h-full object-cover">`;
+                } else {
+                    const iconSvg = getCategoryIcon(catData.name); 
+                    visualElement = iconSvg; // Just the SVG
+                }
                 
                 return `
                 <button data-target="#${catId}" class="sidebar-category-btn w-full h-28 sm:h-32 flex flex-col items-center justify-center p-2 rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all group ${i === 0 ? 'active' : ''}">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 mb-2 rounded-full bg-orange-50 flex items-center justify-center text-amber-700 shadow-inner group-hover:scale-110 transition-transform">
-                        ${iconSvg}
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 mb-2 rounded-full bg-orange-50 flex items-center justify-center text-amber-700 shadow-inner group-hover:scale-110 transition-transform overflow-hidden">
+                        ${visualElement}
                     </div>
                     <span class="font-brand font-bold text-black text-sm sm:text-base leading-tight text-center group-hover:text-amber-900 px-1 line-clamp-2">${displayName}</span>
                 </button>`;
@@ -1175,16 +1216,22 @@
                 topCategoryStrip.innerHTML = Object.keys(categories).map((catId, i) => {
                     const catData = categories[catId];
                     const displayName = currentLang === 'hi' ? catData.name_hi : catData.name;
-                    const iconSvg = getCategoryIcon(catData.name); 
                     
-                    // Circular Style
+                    // Logic: Use Image if available, else use Icon
+                    let visualContent;
+                    if (catData.image && catData.image.trim() !== '') {
+                        visualContent = `<img src="${catData.image}" alt="${displayName}" class="w-full h-full object-cover">`;
+                    } else {
+                        const iconSvg = getCategoryIcon(catData.name); 
+                        visualContent = `<div class="w-8 h-8 flex items-center justify-center">${iconSvg}</div>`;
+                    }
+                    
+                    // UPDATED: Circular "Story" Style
                     return `
                     <button data-target="#${catId}" class="sidebar-category-btn flex flex-col items-center justify-start gap-1 min-w-[72px] p-1 transition-all group snap-start opacity-90 hover:opacity-100 ${i === 0 ? 'active' : ''}">
-                        <!-- Circular Icon Container -->
-                        <div class="circle-icon-container w-16 h-16 rounded-full bg-white border-2 border-red-600 flex items-center justify-center text-black shadow-sm group-hover:scale-105 group-hover:border-red-800 transition-all">
-                            <div class="w-8 h-8 flex items-center justify-center">
-                                ${iconSvg}
-                            </div>
+                        <!-- Circular Icon Container (Added overflow-hidden for images) -->
+                        <div class="circle-icon-container w-16 h-16 rounded-full bg-white border-2 border-red-600 flex items-center justify-center text-black shadow-sm group-hover:scale-105 group-hover:border-red-800 transition-all overflow-hidden">
+                            ${visualContent}
                         </div>
                         <!-- Text Label -->
                         <span class="font-brand font-bold text-black text-[11px] leading-tight text-center group-hover:text-amber-800 line-clamp-2 w-full">${displayName}</span>
@@ -1209,15 +1256,17 @@
             const strings = uiStrings[currentLang];
             
             productSectionsContainer.innerHTML = Object.keys(categories).map((catId, i) => `
-                <!-- CHANGED: Reverted to show first section by default (i > 0 hidden) -->
+                <!-- CHANGED: Show first section by default (i > 0 hidden) -->
                 <section id="${catId}" class="product-section ${i > 0 ? 'hidden' : ''}">
                     <div class="flex justify-center">
+                        <!-- CHANGED: grid-cols-2 for mobile to show small cards, standard grid for desktop -->
                         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8 max-w-7xl w-full">
                             ${categories[catId].products.map(p => createCompactProductCardHTML(p, strings)).join('')}
                         </div>
                     </div>
                 </section>
             `).join('');
+            // Note: Wishlist status update on compact cards is simpler, we handle it in render
         }
 
         // --- NEW: Create Compact Card (Mini Card) ---
@@ -1267,47 +1316,59 @@
             // Note: We removed the wrapping .product-card styles here because the modal panel provides the container
             // UPDATED: Replaced text description with "Know More" button to open description popup
             // UPDATED: Added ViewContent pixel event
+            // UPDATED: Sticky Footer implementation
             return `
-            <div class="product-card-details flex flex-col h-full" data-product-id="${product.id}" data-product-name="${displayName}" data-detailed-description="${detailedDesc || ''}" data-main-image="${product.imageUrl}">
-                <!-- Image Gallery -->
-                <div class="product-image-container bg-gray-50 h-64 sm:h-72 w-full relative shrink-0">
-                    ${buildGalleryHTML(mainGalleryImages)}
-                </div>
+            <div class="product-card-details flex flex-col h-full overflow-hidden" data-product-id="${product.id}" data-product-name="${displayName}" data-detailed-description="${detailedDesc || ''}" data-main-image="${product.imageUrl}">
                 
-                <!-- Details Body -->
-                <div class="p-6 flex flex-col flex-grow text-center overflow-y-auto">
-                    <h3 class="text-2xl font-brand font-bold text-gray-800 mb-1">${displayName}</h3>
+                <!-- Scrollable Content Area (Image + Info) -->
+                <div class="flex-grow overflow-y-auto custom-scrollbar">
+                    <!-- Image Gallery -->
+                    <div class="product-image-container bg-gray-50 h-64 sm:h-80 w-full relative">
+                        ${buildGalleryHTML(mainGalleryImages)}
+                    </div>
                     
-                    <!-- Description Button (Replaces direct text) -->
-                    ${detailedDesc ? `<button class="know-more-btn text-amber-700 font-semibold underline text-sm mt-2 mb-4 hover:text-amber-900 transition-colors">${strings.knowMore}</button>` : ''}
+                    <!-- Details Body -->
+                    <div class="p-5 pb-2 text-center">
+                        <h3 class="text-xl sm:text-2xl font-brand font-bold text-gray-800 mb-1 leading-tight">${displayName}</h3>
+                        
+                        <!-- Description Button -->
+                        ${detailedDesc ? `<button class="know-more-btn text-amber-700 font-semibold underline text-xs sm:text-sm mt-1 mb-4 hover:text-amber-900 transition-colors">${strings.knowMore}</button>` : ''}
+                        
+                        <div class="mt-2 text-left w-full">
+                            <p class="text-xs font-bold text-gray-400 mb-2 text-center uppercase tracking-widest">${strings.selectSize}</p>
+                            <div class="flex flex-wrap gap-2 justify-center mb-4">
+                                ${product.variants.map((v, i) => `<label class="variant-label cursor-pointer select-none"><input type="radio" name="modal-variant-${product.id}" class="sr-only" value="${v.price}" data-variant="${v.size}" ${i===0?'checked':''}><span class="block text-center border border-gray-200 rounded-lg px-4 py-2 text-sm font-medium transition-all hover:border-amber-400">${v.size}</span></label>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sticky Footer Area -->
+                <div class="border-t border-gray-100 bg-white p-4 shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] z-10 relative">
                     
-                    <div class="mt-2 text-left w-full">
-                        <p class="text-sm font-semibold text-gray-500 mb-3 text-center uppercase tracking-wide">${strings.selectSize}</p>
-                        <div class="flex flex-wrap gap-2 justify-center mb-6">
-                            ${product.variants.map((v, i) => `<label class="variant-label cursor-pointer select-none"><input type="radio" name="modal-variant-${product.id}" class="sr-only" value="${v.price}" data-variant="${v.size}" ${i===0?'checked':''}><span class="block text-center border border-gray-200 rounded-lg px-4 py-2 text-sm transition-all hover:border-amber-400">${v.size}</span></label>`).join('')}
+                    <!-- Quantity Row -->
+                    <div class="flex items-center justify-between mb-4">
+                         <span class="text-gray-500 text-sm font-medium">Quantity</span>
+                         <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden h-9">
+                            <button class="quantity-btn minus w-10 bg-gray-50 hover:bg-gray-100 text-gray-600 h-full flex items-center justify-center text-lg" data-action="decrease">-</button>
+                            <input type="number" class="quantity-input w-12 text-center border-none focus:ring-0 text-gray-800 font-bold h-full" value="1" min="1">
+                            <button class="quantity-btn plus w-10 bg-gray-50 hover:bg-gray-100 text-gray-600 h-full flex items-center justify-center text-lg" data-action="increase">+</button>
                         </div>
                     </div>
 
-                    <div class="mt-auto border-t pt-4 w-full">
-                        <div class="flex items-center justify-between mb-4">
-                             <span class="text-gray-600 text-sm">Quantity</span>
-                             <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-                                <button class="quantity-btn minus p-3 bg-gray-50 hover:bg-gray-100 text-gray-600" data-action="decrease">-</button>
-                                <input type="number" class="quantity-input w-12 text-center border-none focus:ring-0 text-gray-800 font-semibold" value="1" min="1">
-                                <button class="quantity-btn plus p-3 bg-gray-50 hover:bg-gray-100 text-gray-600" data-action="increase">+</button>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between gap-4">
-                            <div class="flex-grow">
-                                 <p class="text-3xl font-bold text-amber-800 price text-left">₹${defaultVariant.price}</p>
-                            </div>
-                            <!-- Wishlist in Modal -->
-                            <button class="wishlist-btn p-3 rounded-full bg-gray-50 hover:bg-red-50 border border-gray-100"><svg class="w-6 h-6 heart-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"></path></svg></button>
+                    <!-- Action Row -->
+                    <div class="flex items-center gap-3">
+                        <div class="flex flex-col">
+                             <span class="text-[10px] text-gray-400 uppercase tracking-wide font-bold">Total</span>
+                             <p class="text-2xl font-bold text-amber-800 price leading-none">₹${defaultVariant.price}</p>
                         </div>
                         
-                        <button class="add-to-cart-btn btn-primary w-full font-bold text-lg py-3 px-6 rounded-xl shadow-lg mt-4 transform active:scale-95 transition-transform">
-                            ${strings.addToCart}
+                        <!-- Wishlist in Modal -->
+                        <button class="wishlist-btn p-3 rounded-full bg-gray-50 hover:bg-red-50 border border-gray-100 transition-colors shrink-0"><svg class="w-6 h-6 heart-icon" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"></path></svg></button>
+                        
+                        <button class="add-to-cart-btn btn-primary flex-grow font-bold text-lg py-3 px-4 rounded-xl shadow-lg transform active:scale-95 transition-transform flex items-center justify-center gap-2">
+                            <span>${strings.addToCart}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
                         </button>
                     </div>
                 </div>
@@ -1338,7 +1399,7 @@
                 });
             }
             
-            // Logo Click -> Reload Page (Default View)
+            // Logo Click -> Reload
             if (headerLogo) {
                 headerLogo.addEventListener('click', () => {
                     window.location.reload();
@@ -1464,10 +1525,17 @@
             checkoutBtn.addEventListener('click', handleCheckoutStart);
             returningCustomerBtn.addEventListener('click', handleReturningCustomerCheckout);
             newCustomerBtn.addEventListener('click', handleNewCustomer);
-            completeCheckoutBtn.addEventListener('click', handleCompleteCheckout);
+            proceedToPaymentBtn.addEventListener('click', handleCompleteCheckout); // CHANGED listener
             closeCheckoutModalBtn.addEventListener('click', closeCheckoutModal);
             checkoutModal.addEventListener('click', e => e.target === checkoutModal && closeCheckoutModal());
             
+            // Payment selection buttons
+            document.querySelectorAll('.payment-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    handlePaymentSelection(e.target.dataset.mode);
+                });
+            });
+
             // New Product Modal Listeners
             closeProductModalBtn.addEventListener('click', closeProductModal);
             productModalBackdrop.addEventListener('click', closeProductModal);
@@ -1646,7 +1714,7 @@
             });
         }
         
-        function generateWhatsAppLink(address = '') {
+        function generateWhatsAppLink(address = '', paymentMode = '') {
             let orderDetails = cart.map(i => `*${i.name}*\n - Size: ${i.variant}\n - Qty: ${i.quantity}\n - Price: ₹${(i.price * i.quantity).toFixed(2)}`).join('\n\n');
             const total = cart.reduce((acc, i) => acc + i.price * i.quantity, 0);
             
@@ -1672,9 +1740,16 @@
             let finalMessage = "I want to order:\n\n";
 
             if (address.trim() !== '') {
-                finalMessage += `*Shipping Address:*\n${address.trim()}\n\n------------------------\n\n`;
+                finalMessage += `*Shipping Address:*\n${address.trim()}\n\n`;
             }
             
+            if (paymentMode.trim() !== '') {
+                finalMessage += `*Payment Mode:* ${paymentMode}\n\n`;
+            } else {
+                finalMessage += `*Payment Mode:* Not Selected\n\n`;
+            }
+
+            finalMessage += "------------------------\n\n";
             finalMessage += orderDetails;
             finalMessage += `\n\n*Total: ₹${total.toFixed(2)}*`;
             
@@ -1720,8 +1795,10 @@
         }
 
         function handleReturningCustomerCheckout() {
-            generateWhatsAppLink();
-            closeCheckoutModal();
+            // New logic: Returning Customer -> Select Payment (Step 3)
+            checkoutStep1.classList.add('hidden');
+            checkoutStep3.classList.remove('hidden');
+            shippingAddressInput.value = ''; // Ensure address is empty for "Old" flow so it's not sent
         }
 
         function handleNewCustomer() {
@@ -1737,13 +1814,22 @@
                 return;
             }
             addressError.classList.add('hidden');
-            generateWhatsAppLink(address);
+            
+            // Move to Payment Selection (Step 3)
+            checkoutStep2.classList.add('hidden');
+            checkoutStep3.classList.remove('hidden');
+        }
+
+        function handlePaymentSelection(mode) {
+            const address = shippingAddressInput.value;
+            generateWhatsAppLink(address, mode);
             closeCheckoutModal();
         }
 
         function openCheckoutModal() {
             checkoutStep1.classList.remove('hidden');
             checkoutStep2.classList.add('hidden');
+            checkoutStep3.classList.add('hidden');
             addressError.classList.add('hidden');
             shippingAddressInput.value = '';
 
