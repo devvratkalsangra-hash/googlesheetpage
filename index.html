@@ -522,13 +522,13 @@
         <!-- CHANGED: Moved Category Strip INSIDE header for sticky behavior -->
         <header class="sticky top-0 z-20 bg-[#fffaf0] shadow-sm pb-1 transition-all duration-300">
             <!-- CHANGED: Added border-b border-amber-200 to create the separator line -->
-            <div class="flex justify-between items-center py-2 border-b border-amber-200 mb-2">
+            <div class="flex justify-between items-center py-2 border-b border-amber-200 mb-2 relative">
                 <!-- Left: Search Bar -->
                 <div class="flex-1">
                     <div id="search-component" class="relative w-max">
-                        <input id="search-input" type="text" placeholder="Search..." class="h-11 pl-12 pr-4 rounded-full text-sm focus:outline-none transition-all duration-300 w-11 focus:w-64 border-2 border-transparent focus:border-amber-400">
-                        <!-- UPDATED SEARCH ICON: Added id, fixed width/centering for better click target -->
-                        <span id="search-icon-btn" class="absolute left-0 top-0 h-11 w-11 flex items-center justify-center text-black cursor-pointer z-10" onclick="gtag('event', 'search_icon_click', { 'event_category': 'engagement', 'event_label': 'Search Icon' });">
+                        <input id="search-input" type="text" placeholder="Search..." class="h-11 pl-12 pr-4 rounded-full text-sm focus:outline-none transition-all duration-300 w-11 focus:w-64 border-2 border-transparent focus:border-amber-400 bg-transparent relative z-20 cursor-pointer focus:cursor-text focus:bg-white">
+                        <!-- UPDATED SEARCH ICON: Z-index adjusted, acts as visual anchor -->
+                        <span id="search-icon-btn" class="absolute left-0 top-0 h-11 w-11 flex items-center justify-center text-black z-10 pointer-events-none">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </span>
                         <div id="search-results" class="absolute top-full left-0 mt-1 w-64 bg-white rounded-md shadow-lg max-h-60 overflow-y-auto z-30 hidden"></div>
@@ -998,6 +998,53 @@
             renderAll(); // Render initial text based on stored language
         }
 
+        // --- SMART SEARCH SYNONYMS ---
+        const synonymGroups = [
+            ['rice', 'chawal', 'basmati', 'bhat'],
+            ['turmeric', 'haldi'],
+            ['oil', 'tel'],
+            ['chilli', 'mirch', 'mirchi', 'chili'],
+            ['coriander', 'dhania'],
+            ['salt', 'namak'],
+            ['sugar', 'cheeni', 'shakkar', 'meetha'],
+            ['jaggery', 'gur', 'gud'],
+            ['flour', 'atta', 'maida', 'besan', 'grain'],
+            ['pulse', 'dal', 'lentil', 'daal'],
+            ['almond', 'badam'],
+            ['cashew', 'kaju'],
+            ['raisin', 'kishmish'],
+            ['ghee', 'ghrit', 'clarified butter'],
+            ['millet', 'bajra', 'jowar', 'ragi'],
+            ['pickle', 'achar'],
+            ['cumin', 'jeera'],
+            ['mustard', 'sarso', 'rai'],
+            ['sesame', 'til'],
+            ['groundnut', 'peanut', 'moongfali'],
+            ['honey', 'madhu', 'shehad'],
+            ['soap', 'sabun'],
+            ['shampoo', 'hair wash'],
+            ['face', 'chehra'],
+            ['coconut', 'nariyal']
+        ];
+
+        function getSearchTerms(term) {
+            const t = term.toLowerCase().trim();
+            for (const group of synonymGroups) {
+                if (group.includes(t)) {
+                    return group; // Return the whole group if a match is found
+                }
+            }
+            // Also check partial matches if the term is long enough
+            if (t.length > 3) {
+                 for (const group of synonymGroups) {
+                    if (group.some(g => g.includes(t) || t.includes(g))) {
+                        return group;
+                    }
+                }
+            }
+            return [t]; // Default to just the term
+        }
+
         // --- MASTER RENDER FUNCTION ---
         function renderAll() {
             document.body.setAttribute('lang', currentLang); // Set lang attribute for CSS styling
@@ -1423,6 +1470,15 @@
                     }
                 }, 150);
             });
+            
+            // CLICK HANDLER FOR SEARCH ICON AREA
+            // We use the parent container to catch clicks and force focus on input
+            const searchComponent = document.getElementById('search-component');
+            if (searchComponent) {
+                searchComponent.addEventListener('click', () => {
+                    searchInput.focus();
+                });
+            }
 
             document.body.addEventListener('click', e => {
                 const target = e.target;
@@ -1679,16 +1735,27 @@
         }
         
         function handleLiveSearch(e) {
-            const term = e.target.value.toLowerCase();
-            if (term.length < 2) {
+            const rawTerm = e.target.value.toLowerCase();
+            if (rawTerm.length < 2) {
                 searchResultsContainer.classList.add('hidden');
                 return;
             }
-            // Search logic handles both languages roughly by checking if display name contains string
+            
+            // Smart Search Logic
+            const searchTerms = getSearchTerms(rawTerm);
+            
+            // Search logic handles both languages and synonyms
             const results = allProducts.filter(p => {
                 const nameEn = (p.name || '').toLowerCase();
                 const nameHi = (p.name_hi || '').toLowerCase();
-                return nameEn.includes(term) || nameHi.includes(term);
+                const descEn = (p.detailedDescription || '').toLowerCase();
+                
+                // Check if any of the synonymous terms appear in the product name or description
+                return searchTerms.some(term => 
+                    nameEn.includes(term) || 
+                    nameHi.includes(term) || 
+                    descEn.includes(term)
+                );
             });
             
             const strings = uiStrings[currentLang];
@@ -1845,24 +1912,27 @@
         }
 
         function handleSearchFilter() {
-            const term = searchInput.value.toLowerCase();
+            const rawTerm = searchInput.value.toLowerCase();
+            
+            // Smart Search Logic for Filter
+            const searchTerms = getSearchTerms(rawTerm);
+            
             document.querySelectorAll('.compact-product-card').forEach(card => { // Changed to compact-product-card
-                // We need to look inside the card content because data-attributes might not be fully searchable text in compact mode?
-                // Actually the data-attributes are still on the card div.
                 const parentSection = card.closest('.product-section');
                 if(!parentSection) return; // safety
-                
-                // We need to check if the Product object matches, but we don't have it direct here easily without lookup
-                // Simple approach: re-render? No, too heavy.
-                // CSS approach:
-                // We stored data-product-id. Let's look up the product.
                 
                 const productId = card.dataset.productId;
                 const product = allProducts.find(p => p.id === productId);
                 const nameEn = (product?.name || '').toLowerCase();
                 const nameHi = (product?.name_hi || '').toLowerCase();
+                const descEn = (product?.detailedDescription || '').toLowerCase();
                 
-                const matches = nameEn.includes(term) || nameHi.includes(term);
+                const matches = searchTerms.some(term => 
+                    nameEn.includes(term) || 
+                    nameHi.includes(term) ||
+                    descEn.includes(term)
+                );
+                
                 const isHiddenByCategory = parentSection.classList.contains('hidden');
                 
                 card.style.display = (matches && !isHiddenByCategory) ? 'flex' : 'none';
