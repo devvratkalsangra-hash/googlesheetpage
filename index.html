@@ -522,13 +522,13 @@
         <!-- CHANGED: Moved Category Strip INSIDE header for sticky behavior -->
         <header class="sticky top-0 z-20 bg-[#fffaf0] shadow-sm pb-1 transition-all duration-300">
             <!-- CHANGED: Added border-b border-amber-200 to create the separator line -->
-            <div class="flex justify-between items-center py-2 border-b border-amber-200 mb-2 relative">
+            <div class="flex justify-between items-center py-2 border-b border-amber-200 mb-2">
                 <!-- Left: Search Bar -->
                 <div class="flex-1">
                     <div id="search-component" class="relative w-max">
-                        <input id="search-input" type="text" placeholder="Search..." class="h-11 pl-12 pr-4 rounded-full text-sm focus:outline-none transition-all duration-300 w-11 focus:w-64 border-2 border-transparent focus:border-amber-400 bg-transparent relative z-20 cursor-pointer focus:cursor-text focus:bg-white">
-                        <!-- UPDATED SEARCH ICON: Z-index adjusted, acts as visual anchor -->
-                        <span id="search-icon-btn" class="absolute left-0 top-0 h-11 w-11 flex items-center justify-center text-black z-10 pointer-events-none">
+                        <input id="search-input" type="text" placeholder="Search..." class="h-11 pl-12 pr-4 rounded-full text-sm focus:outline-none transition-all duration-300 w-11 focus:w-64 border-2 border-transparent focus:border-amber-400">
+                        <!-- UPDATED SEARCH ICON: Added id, fixed width/centering for better click target -->
+                        <span id="search-icon-btn" class="absolute left-0 top-0 h-11 w-11 flex items-center justify-center text-black cursor-pointer z-10" onclick="gtag('event', 'search_icon_click', { 'event_category': 'engagement', 'event_label': 'Search Icon' });">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </span>
                         <div id="search-results" class="absolute top-full left-0 mt-1 w-64 bg-white rounded-md shadow-lg max-h-60 overflow-y-auto z-30 hidden"></div>
@@ -573,7 +573,9 @@
             <div class="bg-green-50 py-0.5 overflow-hidden border-t border-green-100">
                 <div class="animate-marquee">
                     <span class="text-green-800 text-xs font-bold inline-flex items-center gap-2">
-                        Dear customers you can bring your own container for refill of oil. <span class="text-sm">😊</span>
+                        <!-- UPDATED: Wrapped text in span with data-key for translation, kept emoji separate -->
+                        <span data-key="announcement">Dear customers you can bring your own container for refill of oil.</span> 
+                        <span class="text-sm">😊</span>
                     </span>
                 </div>
             </div>
@@ -603,7 +605,7 @@
         </footer>
     </div>
 
-    <!-- Floating Cart Pill (Revised for size and center) -->
+        <!-- Floating Cart Pill (Revised for size and center) -->
     <div id="floating-cart-pill" class="hidden">
         <!-- Left: Image & Text Column -->
         <div class="flex items-center gap-3">
@@ -612,7 +614,7 @@
                 <!-- Item Count and Price (JS populates this) -->
                 <span id="floating-cart-count" class="font-bold text-sm text-white leading-tight">0 items</span>
                 <!-- View Cart Text (Small, below) -->
-                <span class="text-xs text-green-200 font-medium">View Cart</span>
+                <span class="text-xs text-green-200 font-medium" data-key="viewCart">View Cart</span> <!-- Added data-key -->
             </div>
         </div>
         
@@ -657,10 +659,7 @@
     <footer class="app-footer flex justify-around items-start">
         <!-- 1. About Us Icon -->
         <a href="https://gurusampoorna.com/" target="_blank" rel="noopener noreferrer" class="footer-btn" onclick="gtag('event', 'about_us_click', { 'event_category': 'engagement', 'event_label': 'Footer About Us Icon' });">
-             <!-- Changed SVG to a User/Human Icon -->
-             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-             </svg>
+             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
              <span class="mt-1" data-key="aboutUs">About Us</span>
         </a>
 
@@ -828,8 +827,201 @@
     document.addEventListener('DOMContentLoaded', () => {
         const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTOBYoHgJGxEOiVx9GvYcXTvzsRT-1kK-P3254UKV-N3BIHWAVT4-6kdVtCi4QJeo4wwsInNY-6Wp3D/pub?output=csv';
         let cart = [], wishlist = [], allProducts = [], allCategories = {};
+        let cartExpired = false; // Flag to track expiration
         const CART_KEY = 'guruSampoornaCart', WISHLIST_KEY = 'guruSampoornaWishlist', LANG_KEY = 'guruSampoornaLang';
+        const CART_TIMESTAMP_KEY = 'guruSampoornaCartTimestamp'; // New key for time tracking
         
+        // --- SMART SEARCH MAPPING (Hindi <-> English) ---
+        // Comprehensive list for robust search
+        const searchSynonyms = {
+            // Cereals & Flours
+            'chawal': 'rice', 'rice': 'chawal',
+            'basmati': 'rice',
+            'aata': 'flour', 'atta': 'flour', 'flour': 'atta',
+            'maida': 'refined flour', 'refined flour': 'maida',
+            'suji': 'semolina', 'semolina': 'suji', 'rava': 'suji',
+            'besan': 'gram flour', 'gram flour': 'besan',
+            'daliya': 'broken wheat', 'broken wheat': 'daliya',
+            'poha': 'flattened rice', 'flattened rice': 'poha',
+            'makka': 'corn', 'corn': 'makka', 'maize': 'makka',
+            'bajra': 'pearl millet', 'pearl millet': 'bajra',
+            'jwar': 'sorghum', 'sorghum': 'jwar', 'jowar': 'jwar',
+            'ragi': 'finger millet', 'finger millet': 'ragi', 'nachni': 'ragi',
+
+            // Pulses (Dals)
+            'dal': 'pulse', 'pulse': 'dal', 'lentil': 'dal', 'dals': 'pulses',
+            'arhar': 'toor', 'toor': 'arhar', 'tuvar': 'arhar',
+            'moong': 'green gram', 'green gram': 'moong',
+            'urad': 'black gram', 'black gram': 'urad',
+            'chana': 'chickpea', 'chickpea': 'chana', 'bengal gram': 'chana',
+            'masoor': 'red lentil', 'red lentil': 'masoor',
+            'rajma': 'kidney bean', 'kidney bean': 'rajma',
+            'kabuli': 'chickpea',
+            'lobia': 'black eyed pea', 'black eyed pea': 'lobia',
+
+            // Spices
+            'elaichi': 'cardamom', 'cardamom': 'elaichi', 'elachi': 'cardamom',
+            'laung': 'clove', 'clove': 'laung', 'lavang': 'laung',
+            'dalchini': 'cinnamon', 'cinnamon': 'dalchini',
+            'kali': 'black', 'black': 'kali',
+            'lal': 'red', 'red': 'lal',
+            'mirch': 'chilli', 'chilli': 'mirch', 'chili': 'mirch', 'pepper': 'mirch',
+            'haldi': 'turmeric', 'turmeric': 'haldi',
+            'dhaniya': 'coriander', 'coriander': 'dhaniya',
+            'jeera': 'cumin', 'cumin': 'jeera',
+            'saunf': 'fennel', 'fennel': 'saunf',
+            'sarso': 'mustard', 'mustard': 'sarso', 'rai': 'mustard',
+            'methi': 'fenugreek', 'fenugreek': 'methi',
+            'hing': 'asafoetida', 'asafoetida': 'hing',
+            'ajwain': 'carom', 'carom': 'ajwain',
+            'jaiphal': 'nutmeg', 'nutmeg': 'jaiphal',
+            'javitri': 'mace', 'mace': 'javitri',
+            'chakri': 'star', 'star': 'chakri',
+            'tej': 'bay',
+            'patta': 'leaf', 'leaf': 'patta',
+            'khus': 'poppy', 'poppy': 'khus',
+            'kesar': 'saffron', 'saffron': 'kesar',
+            'amchur': 'dry mango powder',
+            'sonth': 'dry ginger',
+            'adrak': 'ginger', 'ginger': 'adrak',
+            'lehsun': 'garlic', 'garlic': 'lehsun',
+            'pyaz': 'onion', 'onion': 'pyaz',
+            'imli': 'tamarind', 'tamarind': 'imli',
+            'kasuri': 'dried',
+            'anardana': 'pomegranate',
+
+            // Dry Fruits & Nuts
+            'kaju': 'cashew', 'cashew': 'kaju',
+            'badam': 'almond', 'almond': 'badam',
+            'pista': 'pistachio', 'pistachio': 'pista',
+            'akhrot': 'walnut', 'walnut': 'akhrot',
+            'kishmish': 'raisin', 'raisin': 'kishmish',
+            'khajur': 'dates', 'dates': 'khajur',
+            'anjeer': 'fig', 'fig': 'anjeer',
+            'makhana': 'fox nut', 'fox nut': 'makhana', 'lotus seeds': 'makhana',
+            'chironji': 'charoli', 'charoli': 'chironji',
+            'khubani': 'apricot', 'apricot': 'khubani',
+
+            // Oils & Ghee
+            'tel': 'oil', 'oil': 'tel',
+            'nariyal': 'coconut', 'coconut': 'nariyal',
+            'moongfali': 'groundnut', 'groundnut': 'moongfali', 'peanut': 'moongfali',
+            'til': 'sesame', 'sesame': 'til',
+            'ghee': 'clarified butter',
+            'makhan': 'butter', 'butter': 'makhan',
+
+            // Sweeteners
+            'cheeni': 'sugar', 'sugar': 'cheeni', 'shakkar': 'sugar',
+            'gud': 'jaggery', 'jaggery': 'gud', 'gur': 'jaggery',
+            'mishri': 'rock sugar', 'rock sugar': 'mishri',
+            'shehad': 'honey', 'honey': 'shehad', 'madhu': 'honey',
+
+            // Others
+            'namak': 'salt', 'salt': 'namak',
+            'sendha': 'rock',
+            'kala': 'black',
+            'chai': 'tea', 'tea': 'chai',
+            'coffee': 'kafi',
+            'papad': 'cracker',
+            'achar': 'pickle', 'pickle': 'achar',
+            'sabun': 'soap', 'soap': 'sabun',
+            'agarbatti': 'incense', 'incense': 'agarbatti',
+            'diya': 'lamp',
+            'kapoor': 'camphor', 'camphor': 'kapoor',
+            'chura': 'powder', 'powder': 'chura'
+        };
+
+        // --- CATEGORY TRANSLATIONS (Manual Map for "No Sheet Change") ---
+        const categoryTranslations = {
+            "Oils": "तेल",
+            "Oil": "तेल",
+            "Cold Pressed Oils": "कच्ची घानी तेल",
+            "Cold Pressed Oil": "कच्ची घानी तेल",
+            "Wood Pressed Oils": "लकड़ी घानी तेल",
+            "Wood Pressed Oil": "लकड़ी घानी तेल",
+            "Ghee & Dairy": "घी और डेयरी",
+            "Ghee": "घी",
+            "A2 Ghee": "A2 घी",
+            "Desi A2 Ghee": "देसी A2 घी",
+            "Desi Ghee": "देसी घी",
+            "Pure Ghee": "शुद्ध घी",
+            "Dairy": "डेयरी",
+            "Honey & Sweeteners": "शहद और मीठा",
+            "Honey": "शहद",
+            "Sweeteners": "मीठा",
+            "Grains & Flours": "अनाज और आटा",
+            "Grains": "अनाज",
+            "Flour": "आटा",
+            "Fresh Flour": "ताज़ा आटा",
+            "Fresh Flours": "ताज़ा आटा",
+            "Flours": "आटा",
+            "Atta": "आटा",
+            "Powder": "पाउडर",
+            "Powders": "पाउडर",
+            "Healthy Powder": "पौष्टिक पाउडर",
+            "Healthy Powders": "पौष्टिक पाउडर",
+            "Spices & Condiments": "मसाले",
+            "Spices": "मसाले",
+            "Spice": "मसाले",
+            "Masala": "मसाले",
+            "Masalas": "मसाले",
+            "Condiments": "मसाले",
+            "Spices & Masala": "मसाले",
+            "Whole Spices": "साबुत मसाले",
+            "Natural Spices": "प्राकृतिक मसाले",
+            "Natural Spice": "प्राकृतिक मसाले",
+            "Dry Fruits & Nuts": "मेवे और सूखे मेवे",
+            "Dry Fruits": "सूखे मेवे",
+            "Nuts": "मेवे",
+            "Snacks": "नमकीन और स्नैक्स",
+            "Namkeen": "नमकीन",
+            "Namkeens": "नमकीन",
+            "Personal Care": "व्यक्तिगत देखभाल",
+            "Beverages": "पेय पदार्थ",
+            "Beverage": "पेय पदार्थ",
+            "Drinks": "पेय",
+            "Combos": "कॉम्बो",
+            "Rice": "चावल",
+            "Pulses": "दालें",
+            "Pulse": "दाल",
+            "Dal": "दाल",
+            "Dals": "दालें",
+            "Pulses & Dals": "दालें",
+            "Pulses/Dals": "दालें",
+            "Natural Pulses": "प्राकृतिक दालें",
+            "Natural Pulse": "प्राकृतिक दाल",
+            "Millets": "मिलेट्स",
+            "Millet": "मिलेट्स",
+            "Millets and Flakes": "मिलेट्स और फ्लेक्स",
+            "Millets & Flakes": "मिलेट्स और फ्लेक्स",
+            "Millet and Flakes": "मिलेट्स और फ्लेक्स",
+            "Millet & Flakes": "मिलेट्स और फ्लेक्स",
+            "Millet Flakes": "मिलेट्स और फ्लेक्स",
+            "Natural Millets": "प्राकृतिक मिलेट्स",
+            "Superfoods": "सुपरफूड्स",
+            "Pooja Essentials": "पूजा सामग्री",
+            "Pooja Needs": "पूजा सामग्री",
+            "Panchagavya": "पंचगव्य",
+            "Salt & Sugar": "नमक और चीनी",
+            "Salt": "नमक",
+            "Sugar": "चीनी",
+            "Tea & Coffee": "चाय और कॉफी",
+            "Tea": "चाय",
+            "Coffee": "कॉफी",
+            "Biscuits": "बिस्कुट",
+            "Cookies": "कुकीज़",
+            "Breakfast": "नाश्ता",
+            "Sauces": "चटनी और सॉस",
+            "Pickles": "अचार",
+            "Jams": "जैम्स",
+            "Seeds": "बीज",
+            "Seed": "बीज",
+            "Healthy Seeds": "पौष्टिक बीज",
+            "Utensils": "बर्तन",
+            "Utensil": "बर्तन",
+            "Cookware": "बर्तन"
+        };
+
         // --- LANGUAGE STATE & TRANSLATIONS ---
         let currentLang = localStorage.getItem(LANG_KEY) || 'en';
         
@@ -880,7 +1072,12 @@
                 support: "Support",
                 contactSupport: "Contact Support",
                 callUs: "Call Us",
-                whatsappUs: "WhatsApp Us"
+                whatsappUs: "WhatsApp Us",
+                cartExpiredMsg: "Your cart has expired due to inactivity.",
+                viewCart: "View Cart",
+                item: "item",
+                items: "items",
+                announcement: "Dear customers you can bring your own container for refill of oil." // New
             },
             hi: {
                 langSwitch: "English",
@@ -928,7 +1125,12 @@
                 support: "सहयोग",
                 contactSupport: "संपर्क करें",
                 callUs: "कॉल करें",
-                whatsappUs: "व्हाट्सएप करें"
+                whatsappUs: "व्हाट्सएप करें",
+                cartExpiredMsg: "निष्क्रियता के कारण आपकी कार्ट खाली कर दी गई है।",
+                viewCart: "कार्ट देखें",
+                item: "वस्तु",
+                items: "वस्तुएं",
+                announcement: "प्रिय ग्राहकों, आप तेल रिफिल के लिए अपना खुद का बर्तन ला सकते हैं।" // New
             }
         };
         // --- END LANGUAGE ---
@@ -990,59 +1192,18 @@
         
         async function init() {
             loadStateFromLocalStorage();
+            
+            // Render basic UI immediately
+            renderAll(); 
+
+            // (Removed) Toast notification for cart expiration
+
             await fetchAndRenderProducts();
             
             setupEventListeners();
             updateAllCartUI();
             updateAllWishlistUI();
-            renderAll(); // Render initial text based on stored language
-        }
-
-        // --- SMART SEARCH SYNONYMS ---
-        const synonymGroups = [
-            ['rice', 'chawal', 'basmati', 'bhat'],
-            ['turmeric', 'haldi'],
-            ['oil', 'tel'],
-            ['chilli', 'mirch', 'mirchi', 'chili'],
-            ['coriander', 'dhania'],
-            ['salt', 'namak'],
-            ['sugar', 'cheeni', 'shakkar', 'meetha'],
-            ['jaggery', 'gur', 'gud'],
-            ['flour', 'atta', 'maida', 'besan', 'grain'],
-            ['pulse', 'dal', 'lentil', 'daal'],
-            ['almond', 'badam'],
-            ['cashew', 'kaju'],
-            ['raisin', 'kishmish'],
-            ['ghee', 'ghrit', 'clarified butter'],
-            ['millet', 'bajra', 'jowar', 'ragi'],
-            ['pickle', 'achar'],
-            ['cumin', 'jeera'],
-            ['mustard', 'sarso', 'rai'],
-            ['sesame', 'til'],
-            ['groundnut', 'peanut', 'moongfali'],
-            ['honey', 'madhu', 'shehad'],
-            ['soap', 'sabun'],
-            ['shampoo', 'hair wash'],
-            ['face', 'chehra'],
-            ['coconut', 'nariyal']
-        ];
-
-        function getSearchTerms(term) {
-            const t = term.toLowerCase().trim();
-            for (const group of synonymGroups) {
-                if (group.includes(t)) {
-                    return group; // Return the whole group if a match is found
-                }
-            }
-            // Also check partial matches if the term is long enough
-            if (t.length > 3) {
-                 for (const group of synonymGroups) {
-                    if (group.some(g => g.includes(t) || t.includes(g))) {
-                        return group;
-                    }
-                }
-            }
-            return [t]; // Default to just the term
+            renderAll(); // Re-render to ensure products are shown
         }
 
         // --- MASTER RENDER FUNCTION ---
@@ -1073,6 +1234,9 @@
             // 3. Re-render Cart & Wishlist to update labels
             renderCart();
             renderWishlist();
+            
+            // 4. Update Header Components (Floating Pill Text)
+            updateCartHeader(); // Added this to refresh pill text immediately
         }
 
         // Removed renderHome function and showHomePage function
@@ -1088,9 +1252,11 @@
                 headers.forEach((header, i) => {
                     let value = values[i] || '';
                     if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1).replace(/""/g, '"');
-                    product[header.trim()] = value;
+                    // UPDATED: Added .trim() here to clean every single value from the sheet
+                    product[header.trim()] = value ? value.trim() : '';
                 });
                 
+                // Parse standard variants column (Format: Size|Price:Size|Price)
                 product.variants = (product.variants || '').split(':').map(v_str => {
                     const parts = v_str.split('|').map(p => p.trim());
                     const size = parts[0] || '';
@@ -1098,6 +1264,30 @@
                     const images = parts.slice(2).filter(url => url); // Get all parts from index 2 onwards
                     return { size, price, images };
                 }).filter(v => v.size && v.price > 0);
+                
+                // --- NEW: Parse 'Variant Image' Column (Format: Size : URL | Size : URL) ---
+                const variantImageStr = product['Variant Image'] || product['variantImage'] || '';
+                if (variantImageStr) {
+                    const vImgMap = {};
+                    // Split by pipe '|' first to get each variant entry
+                    variantImageStr.split('|').forEach(item => {
+                        // Find the first colon to split key and value (URLs might have colons)
+                        const firstColon = item.indexOf(':');
+                        if (firstColon > -1) {
+                            const vName = item.substring(0, firstColon).trim().toLowerCase();
+                            const vUrl = item.substring(firstColon + 1).trim();
+                            if (vName && vUrl) vImgMap[vName] = vUrl;
+                        }
+                    });
+                    
+                    // Assign images to matching variants
+                    product.variants.forEach(v => {
+                        if (vImgMap[v.size.toLowerCase()]) {
+                            // Set the specific image for this variant
+                            v.images = [vImgMap[v.size.toLowerCase()]];
+                        }
+                    });
+                }
                 
                 product.galleryImages = [
                     product.galleryImage1, product.galleryImage2, product.galleryImage3,
@@ -1235,10 +1425,34 @@
         }
 
         function renderCategories(categories) {
+            // Helper function to get translated name safely
+            const getDisplayName = (catName, catNameHi) => {
+                if (currentLang !== 'hi') return catName;
+                
+                // 1. Check if sheet provided a specific Hindi translation
+                if (catNameHi && catNameHi !== catName) {
+                    return catNameHi;
+                }
+                
+                // 2. Check dictionary (Case-Insensitive Match & Ignore multiple spaces)
+                // replace(/\s+/g, ' ') turns "Millets  and   Flakes" into "Millets and Flakes"
+                const normalizedName = catName.replace(/\s+/g, ' ').trim().toLowerCase();
+                
+                // Normalize dictionary keys the same way for comparison
+                const matchedKey = Object.keys(categoryTranslations).find(k => k.replace(/\s+/g, ' ').trim().toLowerCase() === normalizedName);
+                
+                if (matchedKey) {
+                    return categoryTranslations[matchedKey];
+                }
+                
+                // 3. Fallback to English
+                return catName;
+            };
+
             // 1. Render Sidebar Cards (Grid) - Kept as cards
             categoryListContainer.innerHTML = Object.keys(categories).map((catId, i) => {
                 const catData = categories[catId];
-                const displayName = currentLang === 'hi' ? catData.name_hi : catData.name;
+                const displayName = getDisplayName(catData.name, catData.name_hi);
                 
                 // Logic: Use Image if available, else use Icon
                 let visualElement;
@@ -1262,7 +1476,7 @@
             if(topCategoryStrip) {
                 topCategoryStrip.innerHTML = Object.keys(categories).map((catId, i) => {
                     const catData = categories[catId];
-                    const displayName = currentLang === 'hi' ? catData.name_hi : catData.name;
+                    const displayName = getDisplayName(catData.name, catData.name_hi);
                     
                     // Logic: Use Image if available, else use Icon
                     let visualContent;
@@ -1453,6 +1667,14 @@
                 });
             }
 
+            // Search Icon Click -> Focus Input (Fix for clickability)
+            if (searchIconBtn) {
+                searchIconBtn.addEventListener('click', (e) => {
+                    e.preventDefault(); // Prevent any default behavior
+                    searchInput.focus(); // Trigger the CSS focus state to expand width
+                });
+            }
+
             // Search Input Focus/Blur - Toggle Logo Visibility
             searchInput.addEventListener('focus', () => {
                 // Hide logo
@@ -1470,15 +1692,6 @@
                     }
                 }, 150);
             });
-            
-            // CLICK HANDLER FOR SEARCH ICON AREA
-            // We use the parent container to catch clicks and force focus on input
-            const searchComponent = document.getElementById('search-component');
-            if (searchComponent) {
-                searchComponent.addEventListener('click', () => {
-                    searchInput.focus();
-                });
-            }
 
             document.body.addEventListener('click', e => {
                 const target = e.target;
@@ -1681,6 +1894,48 @@
             document.body.style.overflow = '';
         }
 
+        // --- NEW: ROBUST SEARCH LOGIC ---
+        
+        // 1. Pre-process query to find all related terms (partial matches on synonyms)
+        function getExpandedSearchTokens(term) {
+            if (!term) return [];
+            const rawTokens = term.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+            
+            return rawTokens.map(token => {
+                // Base concept is the token itself
+                const concepts = new Set([token]);
+                
+                // Find all keys in synonym map that START WITH this token
+                // e.g. "elai" starts with "elaichi" -> add "cardamom"
+                Object.keys(searchSynonyms).forEach(key => {
+                    if (key.startsWith(token)) {
+                        concepts.add(searchSynonyms[key]); // Add the mapped value (e.g. cardamom)
+                        concepts.add(key); // Add the full key (e.g. elaichi) - useful if product has full Hindi word but user typed partial
+                    }
+                });
+                
+                return Array.from(concepts);
+            });
+        }
+
+        // 2. Check product against expanded tokens
+        function checkProductMatch(product, tokenGroups) {
+            // FIX: If no search tokens (empty search), return TRUE to show all products
+            if (!tokenGroups || tokenGroups.length === 0) return true;
+            
+            // Prepare Product Strings
+            const nameEn = (product.name || '').toLowerCase();
+            const nameHi = (product.name_hi || '').toLowerCase();
+            const catName = (product.categoryName || '').toLowerCase();
+            const fullProductString = `${nameEn} ${nameHi} ${catName}`; 
+
+            // Check: For EVERY token group in the search query...
+            return tokenGroups.every(group => {
+                // ... the product must contain AT LEAST ONE of the concepts in that group
+                return group.some(concept => fullProductString.includes(concept));
+            });
+        }
+
         function handleCategoryClick(btn) {
             if(!btn) return; // Guard clause
             const targetId = btn.dataset.target;
@@ -1735,28 +1990,15 @@
         }
         
         function handleLiveSearch(e) {
-            const rawTerm = e.target.value.toLowerCase();
-            if (rawTerm.length < 2) {
+            const term = e.target.value.trim(); // Don't lower case here yet, let helper do it
+            if (term.length < 2) {
                 searchResultsContainer.classList.add('hidden');
                 return;
             }
             
-            // Smart Search Logic
-            const searchTerms = getSearchTerms(rawTerm);
-            
-            // Search logic handles both languages and synonyms
-            const results = allProducts.filter(p => {
-                const nameEn = (p.name || '').toLowerCase();
-                const nameHi = (p.name_hi || '').toLowerCase();
-                const descEn = (p.detailedDescription || '').toLowerCase();
-                
-                // Check if any of the synonymous terms appear in the product name or description
-                return searchTerms.some(term => 
-                    nameEn.includes(term) || 
-                    nameHi.includes(term) || 
-                    descEn.includes(term)
-                );
-            });
+            // Use the new Robust Matcher with Expanded Tokens
+            const tokenGroups = getExpandedSearchTokens(term);
+            const results = allProducts.filter(p => checkProductMatch(p, tokenGroups));
             
             const strings = uiStrings[currentLang];
             searchResultsContainer.innerHTML = results.length ? results.map(p => {
@@ -1912,26 +2154,18 @@
         }
 
         function handleSearchFilter() {
-            const rawTerm = searchInput.value.toLowerCase();
-            
-            // Smart Search Logic for Filter
-            const searchTerms = getSearchTerms(rawTerm);
-            
+            const term = searchInput.value.trim(); // Raw term
+            const tokenGroups = getExpandedSearchTokens(term); // Pre-calculate expansion
+
             document.querySelectorAll('.compact-product-card').forEach(card => { // Changed to compact-product-card
                 const parentSection = card.closest('.product-section');
                 if(!parentSection) return; // safety
                 
                 const productId = card.dataset.productId;
                 const product = allProducts.find(p => p.id === productId);
-                const nameEn = (product?.name || '').toLowerCase();
-                const nameHi = (product?.name_hi || '').toLowerCase();
-                const descEn = (product?.detailedDescription || '').toLowerCase();
                 
-                const matches = searchTerms.some(term => 
-                    nameEn.includes(term) || 
-                    nameHi.includes(term) ||
-                    descEn.includes(term)
-                );
+                // Use the new Robust Matcher
+                const matches = checkProductMatch(product, tokenGroups);
                 
                 const isHiddenByCategory = parentSection.classList.contains('hidden');
                 
@@ -1942,7 +2176,20 @@
         function handleQuantityClick(btn) {
             const input = btn.closest('div').querySelector('.quantity-input');
             let val = parseInt(input.value);
-            input.value = btn.dataset.action === 'increase' ? val + 1 : Math.max(1, val - 1);
+            const newVal = btn.dataset.action === 'increase' ? val + 1 : Math.max(1, val - 1);
+            input.value = newVal;
+
+            // Update price in modal if applicable
+            const container = btn.closest('.product-card-details');
+            if (container) {
+                const v = container.querySelector('input[type="radio"]:checked');
+                if (v) {
+                    const unitPrice = parseFloat(v.value);
+                    const totalPrice = unitPrice * newVal;
+                    const priceEl = container.querySelector('.price');
+                    if (priceEl) priceEl.textContent = `₹${totalPrice.toFixed(2)}`;
+                }
+            }
         }
         
         function handleVariantChange(input, isModal) {
@@ -1950,7 +2197,14 @@
             const container = isModal ? document.getElementById('product-modal-content').querySelector('.product-card-details') : input.closest('.product-card');
             if(!container) return;
 
-            container.querySelector('.price').textContent = `₹${input.value}`;
+            // Get current quantity
+            const quantityInput = container.querySelector('.quantity-input');
+            const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+            
+            // Calculate total based on new variant price * quantity
+            const unitPrice = parseFloat(input.value);
+            container.querySelector('.price').textContent = `₹${(unitPrice * quantity).toFixed(2)}`;
+            
             updateCardWishlistStatus(container);
 
             const productId = container.dataset.productId;
@@ -2092,13 +2346,37 @@
         // Update Gallery generic function removed/inline above for context awareness
         
         function loadStateFromLocalStorage() {
-            cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
+            const savedCart = localStorage.getItem(CART_KEY);
+            const savedTimestamp = localStorage.getItem(CART_TIMESTAMP_KEY);
             wishlist = JSON.parse(localStorage.getItem(WISHLIST_KEY)) || [];
+
+            if (savedCart) {
+                const now = new Date().getTime();
+                const oneDay = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+                // Check if timestamp exists and is older than 24 hours
+                if (savedTimestamp && (now - parseInt(savedTimestamp) > oneDay)) {
+                    // Expired: Clear cart
+                    cart = [];
+                    localStorage.removeItem(CART_KEY);
+                    localStorage.removeItem(CART_TIMESTAMP_KEY);
+                    cartExpired = true;
+                } else {
+                    // Valid: Load cart
+                    cart = JSON.parse(savedCart) || [];
+                }
+            } else {
+                cart = [];
+            }
         }
+
         function saveState() {
             localStorage.setItem(CART_KEY, JSON.stringify(cart));
+            // Update timestamp on every save (activity resets the 24h timer)
+            localStorage.setItem(CART_TIMESTAMP_KEY, new Date().getTime().toString());
             localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
         }
+
         function addToCart(newItem) {
             const existing = cart.find(i => i.id === newItem.id && i.variant === newItem.variant);
             if (existing) existing.quantity += newItem.quantity;
@@ -2166,7 +2444,7 @@
                     <div class="flex-grow">
                         <p class="font-bold text-sm">${item.name}</p>
                         <p class="text-xs text-gray-500">${item.variant}</p>
-                        <p class="font-semibold text-amber-800 text-sm mt-1">₹${item.price.toFixed(2)}</p>
+                        <p class="font-semibold text-amber-800 text-sm mt-1">₹${(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                     <div class="flex items-center border border-gray-300 rounded-md">
                         <button class="cart-quantity-btn p-2" data-action="decrease" data-id="${item.id}" data-variant="${item.variant}">-</button>
@@ -2196,6 +2474,7 @@
         function updateCartHeader() {
             const count = cart.reduce((acc, i) => acc + i.quantity, 0);
             const total = cart.reduce((acc, i) => acc + i.price * i.quantity, 0);
+            const strings = uiStrings[currentLang]; // Get current strings
             
             // Update Top Header Cart (if exists)
             const header = document.getElementById('cart-total-header');
@@ -2225,8 +2504,9 @@
                     // Small delay to allow display:block to apply before opacity transition
                     setTimeout(() => floatingCartPill.classList.add('visible'), 10);
                     
-                    // UPDATED: Added total price display here
-                    floatingCartCount.textContent = `${count} item${count !== 1 ? 's' : ''} • ₹${total.toFixed(2)}`;
+                    // UPDATED: Added total price display here with TRANSLATED "items" text
+                    const itemText = count !== 1 ? strings.items : strings.item;
+                    floatingCartCount.textContent = `${count} ${itemText} • ₹${total.toFixed(2)}`;
                     
                     // Show image of last added item
                     const lastItem = cart[cart.length - 1];
