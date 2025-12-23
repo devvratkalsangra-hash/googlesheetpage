@@ -1244,6 +1244,10 @@
         function parseCSV(text) {
             const rows = text.split(/\r?\n/);
             const headers = (rows.shift() || '').split(',');
+            
+            // Track IDs to ensure uniqueness
+            const idTracker = {};
+
             const products = rows.map(row => {
                 if (!row) return null;
                 const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
@@ -1256,35 +1260,56 @@
                     product[header.trim()] = value ? value.trim() : '';
                 });
                 
+                // --- NEW: ID Deduplication Logic ---
+                if (product.id) {
+                    const originalId = product.id;
+                    if (idTracker[originalId]) {
+                        idTracker[originalId]++;
+                        product.id = `${originalId}-${idTracker[originalId]}`;
+                    } else {
+                        idTracker[originalId] = 1;
+                    }
+                }
+
                 // Parse standard variants column (Format: Size|Price:Size|Price)
                 product.variants = (product.variants || '').split(':').map(v_str => {
                     const parts = v_str.split('|').map(p => p.trim());
                     const size = parts[0] || '';
                     const price = parseFloat(parts[1]) || 0;
-                    const images = parts.slice(2).filter(url => url); // Get all parts from index 2 onwards
+                    const images = parts.slice(2).filter(url => url && url.trim() !== ''); // Filter empty strings
                     return { size, price, images };
                 }).filter(v => v.size && v.price > 0);
                 
                 // --- NEW: Parse 'Variant Image' Column (Format: Size : URL | Size : URL) ---
-                const variantImageStr = product['Variant Image'] || product['variantImage'] || '';
+                // Try multiple casing for the header to be safe
+                const variantImageStr = product['Variant Image'] || product['variantImage'] || product['variant image'] || '';
+                
                 if (variantImageStr) {
                     const vImgMap = {};
+                    
+                    // Helper to normalize keys: remove ALL spaces and lowercase
+                    // This ensures "250 gm" matches "250gm" or "250  gm"
+                    const normalize = s => s.toLowerCase().replace(/\s+/g, '');
+
                     // Split by pipe '|' first to get each variant entry
                     variantImageStr.split('|').forEach(item => {
                         // Find the first colon to split key and value (URLs might have colons)
                         const firstColon = item.indexOf(':');
                         if (firstColon > -1) {
-                            const vName = item.substring(0, firstColon).trim().toLowerCase();
+                            const vName = item.substring(0, firstColon);
                             const vUrl = item.substring(firstColon + 1).trim();
-                            if (vName && vUrl) vImgMap[vName] = vUrl;
+                            if (vName && vUrl) {
+                                vImgMap[normalize(vName)] = vUrl;
+                            }
                         }
                     });
                     
                     // Assign images to matching variants
                     product.variants.forEach(v => {
-                        if (vImgMap[v.size.toLowerCase()]) {
+                        const normalizedSize = normalize(v.size);
+                        if (vImgMap[normalizedSize]) {
                             // Set the specific image for this variant
-                            v.images = [vImgMap[v.size.toLowerCase()]];
+                            v.images = [vImgMap[normalizedSize]];
                         }
                     });
                 }
